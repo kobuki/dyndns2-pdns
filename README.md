@@ -13,6 +13,7 @@ Functionality is extended by the ability to update & delete TXT records making t
   INSERT INTO `users` (`active`,`username`,`password`) VALUES (1,'username','$2y$10$cjaSgipjSg6V/XStI9lx7.LJTo2QcDvxxGhlrnu6uZe8j02xh6Rhm')
   ```
   Note that '$2y$10$cjaSgipjSg6V/XStI9lx7.LJTo2QcDvxxGhlrnu6uZe8j02xh6Rhm' is what you get from `htpasswd -bnBC 10 "" 'password' | tr -d ':'`
+  
   Setup the domain names and permissions to use DynDNS update like
   ```sql
   INSERT INTO `hostnames` (`hostname`) VALUES ('web1.mycorp.com.');
