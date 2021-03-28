@@ -52,25 +52,6 @@ if (!$user_id) {
     auth_fail();
 }
 
-$ch = curl_init(PDNS_ZONES_URL);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Content-Type: application/json',
-    'X-API-Key: ' . PDNS_API_KEY
-));
-$response = curl_exec($ch);
-$response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-if ($response_code != 200) {
-    $db = null;
-    curl_close($ch);
-    print_r([$response, $response_code]);
-    fail(500, 'zoneerr', 'Could not retrieve zones: ' . $response);
-}
-$zones = array();
-foreach (json_decode($response, true) as $zone) {
-    $zones[] = $zone['id'];
-}
-
 if (isset($_GET['acmeproxy'])) {
     $acmeproxy_action = ltrim($_GET['acmeproxy'], '/');
     $acmeproxy_input = json_decode(file_get_contents('php://input'), true);
@@ -99,7 +80,7 @@ if ($hostname_input) {
         $hostname = filter_var(strtolower($hostname), FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
         if ($hostname) {
             $hostname = $extra . $hostname . '.';
-            $zone = verify_hostname($db, $user_id, $hostname, $zones);
+            $zone = verify_hostname($db, $user_id, $hostname);
             if ($zone) {
                 $hostnames[$hostname] = array(
                     'zone' => $zone,
@@ -177,6 +158,13 @@ if (!isset($ipv4) && !isset($ipv6) && !isset($txt)) {
 $ipv4 = isset($ipv4) ? $ipv4 : false;
 $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Content-Type: application/json',
+    'X-API-Key: ' . PDNS_API_KEY
+));
 
 foreach ($hostnames as $hostname => $info) {
     $rrsets = [];

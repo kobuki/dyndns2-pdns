@@ -57,22 +57,15 @@ function match_domain($domain, $pattern)
     return (substr($domain, -$length) === $pattern);
 }
 
-function verify_hostname($db, $user_id, $hostname, $zones)
+function verify_hostname($db, $user_id, $hostname)
 {
-    foreach ($db->query('SELECT `hostnames`.`hostname` AS `hostname` ' .
+    foreach ($db->query('SELECT `hostnames`.`hostname` AS `hostname`, `hostnames`.`domain` AS `domain` ' .
         'FROM `permissions` LEFT JOIN `hostnames` ON ' .
         '`permissions`.`hostname_id`=`hostnames`.`id` ' .
         'WHERE `permissions`.`user_id`=' . $user_id . ' AND ' .
         $db->quote($hostname) . ' LIKE CONCAT(\'%\', `hostnames`.`hostname`)') as $row) {
         if (match_domain($hostname, $row['hostname'])) {
-            $hostname_zone = false;
-            foreach ($zones as $zone) {
-                if (strlen($zone) > strlen($hostname_zone) && substr($hostname, -strlen($zone)) === $zone) {
-                    $hostname_zone = $zone;
-                }
-            }
-
-            return $hostname_zone;
+            return $row['domain'];
         }
     }
     return false;
