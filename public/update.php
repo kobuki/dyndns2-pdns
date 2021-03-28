@@ -1,10 +1,9 @@
 <?php
 
-include_once('config.inc.php');
-
-include_once('common.inc.php');
-include_once('pdns.inc.php');
-include_once('hooks.inc.php');
+include_once('../inc/config.inc.php');
+include_once('../inc/common.inc.php');
+include_once('../inc/pdns.inc.php');
+include_once('../inc/hooks.inc.php');
 
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
     header('WWW-Authenticate: Basic realm="DynDNS"');
@@ -19,7 +18,7 @@ try {
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
     ));
 } catch(PDOException $e) {
-    fail(500, '911', $e->getMessage());
+    fail(500, 'dberror', $e->getMessage());
 }
 
 $user_id = verify_credentials($db, $user, $pass);
@@ -40,7 +39,8 @@ $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 if ($response_code != 200) {
     $db = null;
     curl_close($ch);
-    fail(500, '911', 'Could not retrieve zones: ' . $response);
+    print_r([$response, $response_code]);
+    fail(500, 'zoneerr', 'Could not retrieve zones: ' . $response);
 }
 $zones = array();
 foreach(json_decode($response, true) as $zone) {
@@ -134,7 +134,7 @@ if (isset($_GET['myip'])) {
     }
     if (!isset($ipv4) && !isset($ipv6)) {
         curl_close($ch);
-        fail(500, '911', 'Cannot identify any client IP');
+        fail(500, 'iperr', 'Cannot identify any client IP');
     }
 }
 if (isset($_GET['txt'])) {

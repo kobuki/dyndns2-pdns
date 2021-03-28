@@ -5,25 +5,25 @@ SET time_zone = "+00:00";
 CREATE TABLE `hooks` (
   `id` int(10) UNSIGNED NOT NULL,
   `hostname_id` int(10) UNSIGNED NOT NULL,
-  `hook` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `hook` longtext CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `hostnames` (
   `id` int(10) UNSIGNED NOT NULL,
-  `hostname` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `permissions` (
   `user_id` int(10) UNSIGNED NOT NULL,
   `hostname_id` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `users` (
   `id` int(10) UNSIGNED NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT 1,
-  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` char(60) COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `password` char(60) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 ALTER TABLE `hooks`
@@ -32,10 +32,10 @@ ALTER TABLE `hooks`
 
 ALTER TABLE `hostnames`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `hostname` (`hostname`) USING BTREE;
+  ADD UNIQUE KEY `hostname` (`hostname`);
 
 ALTER TABLE `permissions`
-  ADD PRIMARY KEY (`user_id`,`hostname_id`) USING BTREE,
+  ADD PRIMARY KEY (`user_id`,`hostname_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `permission_hostname` (`hostname_id`);
 
