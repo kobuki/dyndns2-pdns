@@ -2,12 +2,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-CREATE TABLE `hooks` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `hostname_id` int(10) UNSIGNED NOT NULL,
-  `hook` longtext CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 CREATE TABLE `hostnames` (
   `id` int(10) UNSIGNED NOT NULL,
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -27,10 +21,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
-ALTER TABLE `hooks`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `hook_hostname` (`hostname_id`);
-
 ALTER TABLE `hostnames`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `hostname` (`hostname`);
@@ -44,19 +34,11 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`);
 
-
-ALTER TABLE `hooks`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
 ALTER TABLE `hostnames`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `users`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
-
-ALTER TABLE `hooks`
-  ADD CONSTRAINT `hook_hostname` FOREIGN KEY (`hostname_id`) REFERENCES `hostnames` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `permissions`
   ADD CONSTRAINT `permission_hostname` FOREIGN KEY (`hostname_id`) REFERENCES `hostnames` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

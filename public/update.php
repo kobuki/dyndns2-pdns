@@ -3,7 +3,6 @@
 include_once('../inc/config.inc.php');
 include_once('../inc/common.inc.php');
 include_once('../inc/pdns.inc.php');
-include_once('../inc/hooks.inc.php');
 
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
     if (!isset($_GET['user']) || !isset($_GET['password'])) {
@@ -83,8 +82,7 @@ if ($hostname_input) {
             $zone = verify_hostname($db, $user_id, $hostname);
             if ($zone) {
                 $hostnames[$hostname] = array(
-                    'zone' => $zone,
-                    'hooks' => Hook::load($db, $hostname),
+                    'zone' => $zone
                 );
             } else {
                 $db = null;
@@ -189,10 +187,6 @@ foreach ($hostnames as $hostname => $info) {
     if ($response_code >= 400) {
         curl_close($ch);
         fail($response_code, 'dnserr', 'PowerDNS API failed: ' . $hostname . '/' . $info['zone'] . ' = IPv4 ' . $ipv4 . ', IPv6 ' . $ipv6 . ', TXT ' . $txt . ' => ' . $response);
-    }
-
-    foreach ($info['hooks'] as $hook) {
-        $hook->execute($ipv4, $ipv6, $txt);
     }
 }
 
