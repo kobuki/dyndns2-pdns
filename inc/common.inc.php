@@ -8,15 +8,37 @@ function fail($code, $message, $details = NULL)
     exit($message);
 }
 
-function verify_credentials($db, $user, $pass)
+function auth_fail() {
+    header('WWW-Authenticate: Basic realm="DynDNS"');
+    fail(401, 'Authentication required');
+}
+
+function get_hostname($db, $hostname_id) {
+    if (is_nan($hostname_id)) return false;
+    foreach ($db->query('SELECT hostname from hostnames where id = ' . $hostname_id) as $row) {
+        return substr($row['hostname'], 0, -1);
+    }
+    return false;
+}
+
+function verify_credentials($db, $user, $pass, $user_id=null)
 {
-    // generate a password using command
-    // htpasswd -bnBC 10 "" 'mypassword' | tr -d ':'
-    foreach ($db->query('SELECT `id`,`password` ' .
-        'FROM `users` ' .
-        'WHERE `active`=1 AND `username`=' . $db->quote($user)) as $row) {
-        if (password_verify($pass, $row['password'])) {
-            return $row['id'];
+    if (isset($user_id)) {
+        if (is_nan($user_id)) return false;
+        foreach ($db->query('SELECT `username`, `password` ' .
+            'FROM `users` ' .
+            'WHERE `active` = 1 AND `id` = ' . $user_id) as $row) {
+            if (password_verify($pass, $row['password'])) {
+                return $row['username'];
+            }
+        }
+    } else {
+        foreach ($db->query('SELECT `id`, `password` ' .
+            'FROM `users` ' .
+            'WHERE `active` = 1 AND `username` = ' . $db->quote($user)) as $row) {
+            if (password_verify($pass, $row['password'])) {
+                return $row['id'];
+            }
         }
     }
     return false;

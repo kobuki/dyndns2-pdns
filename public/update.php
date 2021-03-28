@@ -6,11 +6,31 @@ include_once('../inc/pdns.inc.php');
 include_once('../inc/hooks.inc.php');
 
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
-    header('WWW-Authenticate: Basic realm="DynDNS"');
-    fail(401, 'Authentication required');
+    if (!isset($_GET['user']) || !isset($_GET['password'])) {
+        $code = basename($_SERVER['SCRIPT_URL']);
+        $auth_data = base64_decode($code, true);
+        if ($auth_data !== false) {
+            $auth_data = explode(':', $auth_data, 3);
+            // user_id:domain_id:password
+            if (sizeof($auth_data) == 3) {
+                $user_id = $auth_data[0];
+                $hostname_id = $auth_data[1];
+                $pass = $auth_data[2];
+                $myip_input = 'auto';
+            } else {
+                auth_fail();
+            }
+        } else {
+            auth_fail();
+        }
+    } else {
+        $user = $_GET['user'];
+        $pass = $_GET['password'];
+    }
+} else {
+    $user = $_SERVER['PHP_AUTH_USER'];
+    $pass = $_SERVER['PHP_AUTH_PW'];
 }
-$user = $_SERVER['PHP_AUTH_USER'];
-$pass = $_SERVER['PHP_AUTH_PW'];
 
 try {
     $db = new PDO(DB_URI, DB_USERNAME, DB_PASSWORD, array(
@@ -21,11 +41,15 @@ try {
     fail(500, 'dberror', $e->getMessage());
 }
 
-$user_id = verify_credentials($db, $user, $pass);
+if (isset($user_id)) {
+    $user = verify_credentials($db, null, $pass, $user_id);
+} else {
+    $user_id = verify_credentials($db, $user, $pass, null);
+}
+
 if (!$user_id) {
     $db = null;
-    header('WWW-Authenticate: Basic realm="DynDNS"');
-    fail(401, 'badauth');
+    auth_fail();
 }
 
 $ch = curl_init(PDNS_ZONES_URL);
@@ -58,6 +82,8 @@ if (isset($_GET['hostname'])) {
     $hostname_input = $_GET['hostname'];
 } elseif (isset($acmeproxy_hostname)) {
     $hostname_input = $acmeproxy_hostname;
+} elseif (isset($hostname_id)) {
+    $hostname_input = get_hostname($db, $hostname_id);
 } else {
     $hostname_input = false;
 }
@@ -97,8 +123,8 @@ if (count($hostnames) > MAX_UPDATE_HOSTNAMES) {
     fail(400, 'numhosts', 'Too many hostnames in request (' . count($hostnames) . ' > maximum ' . MAX_UPDATE_HOSTNAMES . ')');
 }
 
-if (isset($_GET['myip'])) {
-    $myip_input = $_GET['myip'];
+if (isset($_GET['myip']) || isset($myip_input)) {
+    if (!isset($myip_input)) $myip_input = $_GET['myip'];
     if ($myip_input === '') {
         $ipv4 = '';
         $ipv6 = '';
