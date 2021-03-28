@@ -17,7 +17,7 @@ try {
         \PDO::ATTR_EMULATE_PREPARES => false,
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
     ));
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     fail(500, 'dberror', $e->getMessage());
 }
 
@@ -32,7 +32,7 @@ $ch = curl_init(PDNS_ZONES_URL);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Content-Type: application/json',
-    'X-API-Key: '.PDNS_API_KEY
+    'X-API-Key: ' . PDNS_API_KEY
 ));
 $response = curl_exec($ch);
 $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
@@ -43,7 +43,7 @@ if ($response_code != 200) {
     fail(500, 'zoneerr', 'Could not retrieve zones: ' . $response);
 }
 $zones = array();
-foreach(json_decode($response, true) as $zone) {
+foreach (json_decode($response, true) as $zone) {
     $zones[] = $zone['id'];
 }
 
@@ -64,7 +64,7 @@ if (isset($_GET['hostname'])) {
 $hostnames = array();
 if ($hostname_input) {
     $hostname_input = explode(',', $hostname_input);
-    foreach($hostname_input as $hostname) {
+    foreach ($hostname_input as $hostname) {
         $extra = '';
         if ($hostname[0] === '_') {
             $extra = '_';
@@ -104,7 +104,7 @@ if (isset($_GET['myip'])) {
         $ipv6 = '';
     } else {
         $myip_input = array_filter(explode(',', $myip_input));
-        foreach($myip_input as $myip) {
+        foreach ($myip_input as $myip) {
             $tryip = filter_var($myip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
             if ($tryip !== false) {
                 $ipv4 = $tryip;
@@ -152,7 +152,7 @@ $ipv4 = isset($ipv4) ? $ipv4 : false;
 $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
 
-foreach($hostnames as $hostname => $info) {
+foreach ($hostnames as $hostname => $info) {
     $rrsets = [];
     if ($ipv4 !== false) {
         $rrsets[] = build_rrset($hostname, 'A', $ipv4);
@@ -177,8 +177,8 @@ foreach($hostnames as $hostname => $info) {
         fail($response_code, 'dnserr', 'PowerDNS API failed: ' . $hostname . '/' . $info['zone'] . ' = IPv4 ' . $ipv4 . ', IPv6 ' . $ipv6 . ', TXT ' . $txt . ' => ' . $response);
     }
 
-    foreach($info['hooks'] as $hook) {
-        $hook->execute($ipv4, $ipv6,$txt);
+    foreach ($info['hooks'] as $hook) {
+        $hook->execute($ipv4, $ipv6, $txt);
     }
 }
 

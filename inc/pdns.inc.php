@@ -2,7 +2,8 @@
 
 include_once('config.inc.php');
 
-function build_rrset($hostname, $type, $content) {
+function build_rrset($hostname, $type, $content)
+{
     $rrset = array(
         'name' => $hostname,
         'type' => $type,

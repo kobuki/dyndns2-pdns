@@ -1,12 +1,14 @@
 <?php
 
-class Hook {
-    public static function load($db, $hostname) {
+class Hook
+{
+    public static function load($db, $hostname)
+    {
         $hooks = [];
-        foreach($db->query('SELECT `hooks`.`hook` AS `hook` FROM ' .
-                           '`hooks` LEFT JOIN `hostnames` ON ' .
-                               '`hooks`.`hostname_id`=`hostnames`.`id` ' .
-                           'WHERE '.$db->quote($hostname).' LIKE CONCAT(\'%\', `hostnames`.`hostname`)') as $row) {
+        foreach ($db->query('SELECT `hooks`.`hook` AS `hook` FROM ' .
+            '`hooks` LEFT JOIN `hostnames` ON ' .
+            '`hooks`.`hostname_id`=`hostnames`.`id` ' .
+            'WHERE ' . $db->quote($hostname) . ' LIKE CONCAT(\'%\', `hostnames`.`hostname`)') as $row) {
             $hooks[] = new Hook($hostname, json_decode($row['hook']));
         }
         return $hooks;
@@ -20,7 +22,8 @@ class Hook {
 
     private $_hook_impl;
 
-    private function __construct($hostname, $hook) {
+    private function __construct($hostname, $hook)
+    {
         $this->_name = $hook->name;
         $this->_triggers = $hook->triggers;
         $this->_hook_type = $hook->hook->type;
@@ -34,22 +37,33 @@ class Hook {
         );
     }
 
-    private function _build_params($ipv4, $ipv6, $txt) {
+    private function _build_params($ipv4, $ipv6, $txt)
+    {
         $params = array();
         foreach ($this->_hook_params as $_hook_param) {
-            $params[$_hook_param->name] = str_replace('<domain>', $this->_hostname,
-                                          str_replace('<ipv4>', $ipv4,
-                                          str_replace('<ipv6>', $ipv6,
-                                          str_replace('<txt>', $txt, $_hook_param->value))));
+            $params[$_hook_param->name] = str_replace(
+                '<domain>',
+                $this->_hostname,
+                str_replace(
+                    '<ipv4>',
+                    $ipv4,
+                    str_replace(
+                        '<ipv6>',
+                        $ipv6,
+                        str_replace('<txt>', $txt, $_hook_param->value)
+                    )
+                )
+            );
         }
         return $params;
     }
 
-    private function _execute_curl($params) {
+    private function _execute_curl($params)
+    {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         foreach ($params as $name => $value) {
-            $opt_name = 'CURLOPT_'.strtoupper($name);
+            $opt_name = 'CURLOPT_' . strtoupper($name);
             if (defined($opt_name)) {
                 curl_setopt($ch, constant($opt_name), $value);
             }
@@ -60,21 +74,26 @@ class Hook {
         return ($response_code < 400);
     }
 
-    private function _execute_send_mail($params) {
+    private function _execute_send_mail($params)
+    {
         // not implemented, yet
         return FALSE;
     }
 
-    private function _execute_shell($params) {
+    private function _execute_shell($params)
+    {
         // not implemented, yet
         return FALSE;
     }
 
-    public function execute($ipv4, $ipv6, $txt) {
-        if (in_array('any',$this->_triggers) ||
+    public function execute($ipv4, $ipv6, $txt)
+    {
+        if (
+            in_array('any', $this->_triggers) ||
             (($ipv4 !== FALSE) && in_array('ipv4', $this->_triggers)) ||
             (($ipv6 !== FALSE) && in_array('ipv6', $this->_triggers)) ||
-            (($txt !== FALSE) && in_array('txt', $this->_triggers))) {
+            (($txt !== FALSE) && in_array('txt', $this->_triggers))
+        ) {
 
             if (array_key_exists($this->_hook_type, $this->_hook_impl)) {
                 $hook_impl = $this->_hook_impl[$this->_hook_type];
