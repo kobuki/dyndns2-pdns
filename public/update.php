@@ -173,7 +173,8 @@ foreach ($hostnames as $hostname => $info) {
         $rrsets[] = build_rrset($hostname, 'AAAA', $ipv6);
     }
     if ($txt !== false) {
-        $rrsets[] = build_rrset($hostname, 'TXT', $txt);
+        $old_records = get_records($hostname, 'TXT', $ch, $info);
+        $rrsets[] = build_rrset($hostname, 'TXT', $txt, $old_records);
     }
 
     $payload = json_encode(array('rrsets' => $rrsets));
