@@ -17,7 +17,7 @@ CREATE TABLE `users` (
   `id` int(10) UNSIGNED NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT 1,
   `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `password` char(60) COLLATE utf8_unicode_ci NOT NULL
+  `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
