@@ -44,3 +44,9 @@ ALTER TABLE `permissions`
   ADD CONSTRAINT `permission_hostname` FOREIGN KEY (`hostname_id`) REFERENCES `hostnames` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `permission_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
+
+create view v_users_permissions as
+  select users.username, hostnames.hostname, hostnames.domain
+  from   users, permissions, hostnames
+  where  users.id = permissions.user_id
+         and permissions.hostname_id = hostnames.id;
