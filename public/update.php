@@ -5,7 +5,7 @@ include_once('../inc/common.inc.php');
 include_once('../inc/pdns.inc.php');
 
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
-    if (!isset($_GET['user']) || !isset($_GET['password'])) {
+    if (!isset($_GET['user']) && !isset($_GET['username']) || !isset($_GET['password'])) {
         $code = basename($_SERVER['SCRIPT_URL']);
         $auth_data = base64_decode($code, true);
         if ($auth_data !== false) {
@@ -23,7 +23,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
             auth_fail();
         }
     } else {
-        $user = $_GET['user'];
+        $user = isset($_GET['user']) ? $_GET['user'] : $_GET['username'];
         $pass = $_GET['password'];
     }
 } else {
