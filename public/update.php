@@ -86,7 +86,6 @@ if ($hostname_input) {
                 );
             } else {
                 $db = null;
-                curl_close($ch);
                 fail(400, 'nohost', 'Hostname = ' . $hostname . ' is invalid for user ' . $user . ' (' . $user_id . ')');
             }
         }
@@ -94,11 +93,9 @@ if ($hostname_input) {
 }
 $db = null;
 if (empty($hostnames)) {
-    curl_close($ch);
     fail(400, 'notfqdn', 'Invalid field hostname = ' . implode(',', $hostname_input));
 }
 if (count($hostnames) > MAX_UPDATE_HOSTNAMES) {
-    curl_close($ch);
     fail(400, 'numhosts', 'Too many hostnames in request (' . count($hostnames) . ' > maximum ' . MAX_UPDATE_HOSTNAMES . ')');
 }
 
@@ -138,7 +135,6 @@ if (isset($_GET['myip']) || isset($myip_input)) {
         }
     }
     if (!isset($ipv4) && !isset($ipv6)) {
-        curl_close($ch);
         fail(500, 'iperr', 'Cannot identify any client IP');
     }
 }
@@ -149,7 +145,6 @@ if (isset($_GET['txt'])) {
 }
 
 if (!isset($ipv4) && !isset($ipv6) && !isset($txt)) {
-    curl_close($ch);
     fail(200, 'nochg', 'No change requested: ' . implode(',', $hostnames));
 }
 
