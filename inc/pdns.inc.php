@@ -85,10 +85,4 @@ function update_dns($hostnames, $ipv4, $ipv6, $txt) {
     }
 
     curl_close($ch);
-
-    echo 'good';
-    if (isset($acmeproxy_txt)) {
-        echo " (TXT='{$acmeproxy_txt}')";
-    }
 }
-

@@ -153,3 +153,8 @@ $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
 
 update_dns($hostnames, $ipv4, $ipv6, $txt);
+
+echo 'good';
+if (isset($acmeproxy_txt)) {
+    echo " (TXT='{$acmeproxy_txt}')";
+}
