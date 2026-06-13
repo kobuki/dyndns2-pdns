@@ -2,7 +2,7 @@
 
 include_once('../inc/config.inc.php');
 include_once('../inc/common.inc.php');
-include_once('../inc/pdns.inc.php');
+include_once('../inc/' . BACKEND . '.inc.php');
 
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
     if (!isset($_GET['user']) && !isset($_GET['username']) || !isset($_GET['password'])) {

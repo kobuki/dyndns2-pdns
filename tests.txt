@@ -1,0 +1,135 @@
+# DDNS Update Endpoint – curl Test Commands
+#
+# Placeholders – replace before running:
+#   BASE_URL   = https://ddns.example.com
+#   USERNAME   = testuser
+#   PASSWORD   = testpass
+#   HOSTNAME   = home.example.com
+#   USER_ID    = 1          (numeric DB id of the user)
+#   HOSTNAME_ID= 1          (numeric DB id of the hostname)
+#
+# Expected success response: "good"
+# Expected error responses:  "nohost", "notfqdn", "numhosts", "nochg",
+#                            "dnserr", "dberror", or HTTP 401
+
+BASE_URL="https://ddns.example.com"
+USERNAME="testuser"
+PASSWORD="testpass"
+HOSTNAME="home.example.com"
+
+
+# ── Authentication methods ────────────────────────────────────────────────────
+
+# 1. HTTP Basic Auth (standard DynDNS2 client behaviour)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=1.2.3.4"
+
+# 2. Credentials in query string – 'username' param
+curl "$BASE_URL/update.php?username=$USERNAME&password=$PASSWORD&hostname=$HOSTNAME&myip=1.2.3.4"
+
+# 3. Credentials in query string – 'user' param alias
+curl "$BASE_URL/update.php?user=$USERNAME&password=$PASSWORD&hostname=$HOSTNAME&myip=1.2.3.4"
+
+# 4. Base64-encoded token in URL path  (user_id:hostname_id:password → base64)
+#    The token encodes "1:1:testpass" → dXNlcl9pZDoxOnRlc3RwYXNz
+#    When using this method, myip defaults to 'auto' (caller's IP).
+TOKEN=$(printf '1:1:testpass' | base64 -w0)
+curl "$BASE_URL/$TOKEN"
+
+
+# ── Update IPv4 (A record) ────────────────────────────────────────────────────
+
+# 5. Set A record to an explicit IPv4 address
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=1.2.3.4"
+
+# 6. Delete A record (empty myip clears both A and AAAA)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip="
+
+
+# ── Update IPv6 (AAAA record) ─────────────────────────────────────────────────
+
+# 7. Set AAAA record to an explicit IPv6 address
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=2001:db8::1"
+
+# 8. Delete AAAA record (empty myip clears both A and AAAA)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip="
+
+
+# ── Update both A and AAAA in one request ────────────────────────────────────
+
+# 9. Set both A and AAAA records (comma-separated in myip)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=1.2.3.4,2001:db8::1"
+
+
+# ── Auto-detect caller IP ─────────────────────────────────────────────────────
+
+# 10. Let the server detect the caller's IP and update the matching record type
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=auto"
+
+
+# ── TXT records ───────────────────────────────────────────────────────────────
+
+# 11. Add a TXT record (existing TXT records are kept; new one is appended)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&txt=hello+world"
+
+# 12. Delete all TXT records for the hostname (empty txt value)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&txt="
+
+
+# ── Combined IP + TXT update ──────────────────────────────────────────────────
+
+# 13. Update A record and add a TXT record in the same request
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=1.2.3.4&txt=v%3Dspf1+include%3Aexample.com+~all"
+
+
+# ── Multiple hostnames ────────────────────────────────────────────────────────
+
+# 14. Update two hostnames in a single request (comma-separated)
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=home.example.com,office.example.com&myip=1.2.3.4"
+
+
+# ── ACME proxy (Let's Encrypt DNS-01 challenge) ───────────────────────────────
+
+# 15. Present a DNS-01 challenge TXT record
+curl -u "$USERNAME:$PASSWORD" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"fqdn":"_acme-challenge.home.example.com.","value":"TOKEN_VALUE_HERE"}' \
+  "$BASE_URL/update.php?acmeproxy=present"
+
+# 16. Clean up (remove) a DNS-01 challenge TXT record
+curl -u "$USERNAME:$PASSWORD" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"fqdn":"_acme-challenge.home.example.com.","value":"TOKEN_VALUE_HERE"}' \
+  "$BASE_URL/update.php?acmeproxy=cleanup"
+
+
+# ── Error / edge cases ────────────────────────────────────────────────────────
+
+# 17. Wrong password → expect HTTP 401
+curl -v -u "$USERNAME:wrongpassword" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME&myip=1.2.3.4"
+
+# 18. Hostname not permitted for this user → expect "nohost"
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=notallowed.example.com&myip=1.2.3.4"
+
+# 19. No IP or TXT supplied → expect "nochg"
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$HOSTNAME"
+
+# 20. Too many hostnames (> MAX_UPDATE_HOSTNAMES) → expect "numhosts"
+MANY=$(printf 'h%d.example.com,' {1..21} | sed 's/,$//')
+curl -u "$USERNAME:$PASSWORD" \
+  "$BASE_URL/update.php?hostname=$MANY&myip=1.2.3.4"
