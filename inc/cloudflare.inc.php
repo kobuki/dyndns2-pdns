@@ -17,6 +17,20 @@ function cf_request($ch, $method, $path, $body = null)
     ];
 }
 
+function cf_get_zone_id($ch, $domain)
+{
+    static $cache = [];
+    if (isset($cache[$domain])) return $cache[$domain];
+
+    $result = cf_request($ch, 'GET', '/zones?name=' . urlencode(rtrim($domain, '.')));
+    if ($result['code'] >= 400 || empty($result['body']['result'])) {
+        curl_close($ch);
+        fail($result['code'] ?: 404, 'dnserr', "Cloudflare: zone not found for domain {$domain}");
+    }
+    $cache[$domain] = $result['body']['result'][0]['id'];
+    return $cache[$domain];
+}
+
 function cf_get_records($ch, $zone_id, $name, $type)
 {
     $result = cf_request($ch, 'GET', "/zones/{$zone_id}/dns_records?name=" . urlencode($name) . "&type={$type}");
@@ -68,7 +82,7 @@ function update_dns($hostnames, $ipv4, $ipv6, $txt)
     ]);
 
     foreach ($hostnames as $hostname => $info) {
-        $zone_id = $info['zone'];
+        $zone_id = cf_get_zone_id($ch, $info['zone']);
         $name = rtrim($hostname, '.');
 
         if ($ipv4 !== false) {

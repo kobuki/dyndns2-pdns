@@ -9,7 +9,8 @@ const PDNS_API_KEY = '<fill in>';
 const PDNS_ZONES_URL = 'http://127.0.0.1:8081/api/v1/servers/localhost/zones';
 
 // --- Cloudflare backend (BACKEND = 'cloudflare') ---
-// The 'domain' column in the hostnames table must hold the zone ID (32-char hex string from the CF dashboard)
+// The 'domain' column in the hostnames table must hold the domain name (e.g. "example.com.")
+// The zone ID is looked up automatically via the Cloudflare API and cached per request.
 const CF_API_TOKEN = '<fill in>';
 
 // --- Database ---
