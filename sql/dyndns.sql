@@ -48,7 +48,7 @@ COMMIT;
 
 
 create view v_users_permissions as
-  select users.username, hostnames.hostname, hostnames.domain
+  select users.username, hostnames.hostname, hostnames.domain, hostnames.last_updated
   from   users, permissions, hostnames
   where  users.id = permissions.user_id
          and permissions.hostname_id = hostnames.id;
