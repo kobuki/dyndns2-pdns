@@ -11,7 +11,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
         if ($auth_data !== false) {
             $auth_data = explode(':', $auth_data, 3);
             // user_id:domain_id:password
-            if (sizeof($auth_data) == 3) {
+            if (count($auth_data) == 3) {
                 $user_id = $auth_data[0];
                 $hostname_id = $auth_data[1];
                 $pass = $auth_data[2];
@@ -91,7 +91,6 @@ if ($hostname_input) {
         }
     }
 }
-$db = null;
 if (empty($hostnames)) {
     fail(400, 'notfqdn', 'Invalid field hostname = ' . implode(',', $hostname_input));
 }
@@ -153,6 +152,8 @@ $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
 
 update_dns($hostnames, $ipv4, $ipv6, $txt);
+update_last_updated($db, $hostnames);
+$db = null;
 
 echo 'good';
 if (isset($acmeproxy_txt)) {

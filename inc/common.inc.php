@@ -14,7 +14,7 @@ function auth_fail() {
 }
 
 function get_hostname($db, $hostname_id) {
-    if (is_nan($hostname_id)) return false;
+    if (!ctype_digit((string)$hostname_id)) return false;
     foreach ($db->query('SELECT hostname from hostnames where id = ' . $hostname_id) as $row) {
         return substr($row['hostname'], 0, -1);
     }
@@ -24,7 +24,7 @@ function get_hostname($db, $hostname_id) {
 function verify_credentials($db, $user, $pass, $user_id=null)
 {
     if (isset($user_id)) {
-        if (is_nan($user_id)) return false;
+        if (!ctype_digit((string)$user_id)) return false;
         foreach ($db->query('SELECT `username`, `password` ' .
             'FROM `users` ' .
             'WHERE `active` = 1 AND `id` = ' . $user_id) as $row) {
@@ -55,6 +55,11 @@ function match_domain($domain, $pattern)
         return true;
     }
     return (substr($domain, -$length) === $pattern);
+}
+
+function update_last_updated($db, $hostnames) {
+    $quoted = array_map(function($h) use ($db) { return $db->quote($h); }, array_keys($hostnames));
+    $db->exec('UPDATE `hostnames` SET `last_updated` = NOW() WHERE `hostname` IN (' . implode(',', $quoted) . ')');
 }
 
 function verify_hostname($db, $user_id, $hostname)

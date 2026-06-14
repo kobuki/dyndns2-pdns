@@ -6,6 +6,7 @@ CREATE TABLE `hostnames` (
   `id` int(10) UNSIGNED NOT NULL,
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `domain` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `last_updated` datetime NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `permissions` (
