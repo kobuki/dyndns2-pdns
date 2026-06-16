@@ -58,16 +58,19 @@ function match_domain($domain, $pattern)
 }
 
 function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt) {
-    $stmt = $db->prepare('INSERT INTO `changelog` (`username`, `hostname`, `record_type`, `record_content`) VALUES (?, ?, ?, ?)');
+    $stmt = $db->prepare('INSERT INTO `changelog` (`username`, `hostname`, `operation`, `record_type`, `record_content`) VALUES (?, ?, ?, ?, ?)');
     foreach ($hostnames as $hostname => $info) {
         if ($ipv4 !== false) {
-            $stmt->execute([$username, $hostname, 'A', $ipv4]);
+            $op = ($ipv4 === '') ? 'delete' : 'set';
+            $stmt->execute([$username, $hostname, $op, 'A', $ipv4]);
         }
         if ($ipv6 !== false) {
-            $stmt->execute([$username, $hostname, 'AAAA', $ipv6]);
+            $op = ($ipv6 === '') ? 'delete' : 'set';
+            $stmt->execute([$username, $hostname, $op, 'AAAA', $ipv6]);
         }
         if ($txt !== false) {
-            $stmt->execute([$username, $hostname, 'TXT', $txt]);
+            $op = ($txt === '') ? 'delete' : 'add';
+            $stmt->execute([$username, $hostname, $op, 'TXT', $txt]);
         }
     }
 }

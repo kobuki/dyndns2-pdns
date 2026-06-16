@@ -7,6 +7,7 @@ CREATE TABLE `changelog` (
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `operation` enum('set','add','delete') COLLATE utf8_unicode_ci NOT NULL,
   `record_type` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `record_content` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
