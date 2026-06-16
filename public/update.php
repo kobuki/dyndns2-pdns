@@ -153,6 +153,7 @@ $txt = isset($txt) ? $txt : false;
 
 update_dns($hostnames, $ipv4, $ipv6, $txt);
 update_last_updated($db, $hostnames);
+log_changelog($db, $user, $hostnames, $ipv4, $ipv6, $txt);
 $db = null;
 
 echo 'good';

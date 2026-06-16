@@ -2,6 +2,17 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+CREATE TABLE `changelog` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `record_type` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `record_content` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `hostnames` (
   `id` int(10) UNSIGNED NOT NULL,
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,

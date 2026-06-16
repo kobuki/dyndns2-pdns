@@ -57,6 +57,21 @@ function match_domain($domain, $pattern)
     return (substr($domain, -$length) === $pattern);
 }
 
+function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt) {
+    $stmt = $db->prepare('INSERT INTO `changelog` (`username`, `hostname`, `record_type`, `record_content`) VALUES (?, ?, ?, ?)');
+    foreach ($hostnames as $hostname => $info) {
+        if ($ipv4 !== false) {
+            $stmt->execute([$username, $hostname, 'A', $ipv4]);
+        }
+        if ($ipv6 !== false) {
+            $stmt->execute([$username, $hostname, 'AAAA', $ipv6]);
+        }
+        if ($txt !== false) {
+            $stmt->execute([$username, $hostname, 'TXT', $txt]);
+        }
+    }
+}
+
 function update_last_updated($db, $hostnames) {
     $quoted = array_map(function($h) use ($db) { return $db->quote($h); }, array_keys($hostnames));
     $db->exec('UPDATE `hostnames` SET `last_updated` = NOW() WHERE `hostname` IN (' . implode(',', $quoted) . ')');
