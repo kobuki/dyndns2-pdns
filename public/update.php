@@ -51,6 +51,8 @@ if (!$user_id) {
     auth_fail();
 }
 
+$client_ip = get_client_ip();
+
 if (isset($_GET['acmeproxy'])) {
     $acmeproxy_action = ltrim($_GET['acmeproxy'], '/');
     $acmeproxy_input = json_decode(file_get_contents('php://input'), true);
@@ -116,18 +118,11 @@ if (isset($_GET['myip']) || isset($myip_input)) {
             }
         }
         if (!isset($ipv4) && !isset($ipv6)) {
-            if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-                $myip = $_SERVER['HTTP_CLIENT_IP'];
-            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $myip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            } else {
-                $myip = $_SERVER['REMOTE_ADDR'];
-            }
-            $tryip = filter_var($myip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+            $tryip = filter_var($client_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
             if ($tryip !== false) {
                 $ipv4 = $tryip;
             }
-            $tryip = filter_var($myip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
+            $tryip = filter_var($client_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
             if ($tryip !== false) {
                 $ipv6 = $tryip;
             }
@@ -152,8 +147,8 @@ $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
 
 update_dns($hostnames, $ipv4, $ipv6, $txt);
-update_last_updated($db, $hostnames);
-log_changelog($db, $user, $hostnames, $ipv4, $ipv6, $txt);
+update_last_updated($db, $hostnames, $client_ip);
+log_changelog($db, $user, $hostnames, $ipv4, $ipv6, $txt, $client_ip);
 $db = null;
 
 echo 'good';

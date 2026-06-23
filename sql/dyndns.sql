@@ -5,6 +5,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `changelog` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `client_ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
   `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `operation` enum('set','add','delete') COLLATE utf8_unicode_ci NOT NULL,
@@ -18,7 +19,8 @@ CREATE TABLE `hostnames` (
   `id` int(10) UNSIGNED NOT NULL,
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `domain` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `last_updated` datetime NULL DEFAULT NULL
+  `last_updated` datetime NULL DEFAULT NULL,
+  `last_client_ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `permissions` (

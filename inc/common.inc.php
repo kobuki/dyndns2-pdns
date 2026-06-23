@@ -57,27 +57,44 @@ function match_domain($domain, $pattern)
     return (substr($domain, -$length) === $pattern);
 }
 
-function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt) {
-    $stmt = $db->prepare('INSERT INTO `changelog` (`username`, `hostname`, `operation`, `record_type`, `record_content`) VALUES (?, ?, ?, ?, ?)');
+function get_client_ip() {
+    $headers = [
+        'HTTP_X_REAL_IP',        // nginx
+        'HTTP_X_FORWARDED_FOR',  // standard proxy header; may be a comma-separated list
+    ];
+    foreach ($headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $ip = trim(explode(',', $_SERVER[$header])[0]);
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                return $ip;
+            }
+        }
+    }
+    return $_SERVER['REMOTE_ADDR'];
+}
+
+function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt, $client_ip) {
+    $stmt = $db->prepare('INSERT INTO `changelog` (`username`, `hostname`, `operation`, `record_type`, `record_content`, `client_ip`) VALUES (?, ?, ?, ?, ?, ?)');
     foreach ($hostnames as $hostname => $info) {
         if ($ipv4 !== false) {
             $op = ($ipv4 === '') ? 'delete' : 'set';
-            $stmt->execute([$username, $hostname, $op, 'A', $ipv4]);
+            $stmt->execute([$username, $hostname, $op, 'A', $ipv4, $client_ip]);
         }
         if ($ipv6 !== false) {
             $op = ($ipv6 === '') ? 'delete' : 'set';
-            $stmt->execute([$username, $hostname, $op, 'AAAA', $ipv6]);
+            $stmt->execute([$username, $hostname, $op, 'AAAA', $ipv6, $client_ip]);
         }
         if ($txt !== false) {
             $op = ($txt === '') ? 'delete' : 'add';
-            $stmt->execute([$username, $hostname, $op, 'TXT', $txt]);
+            $stmt->execute([$username, $hostname, $op, 'TXT', $txt, $client_ip]);
         }
     }
 }
 
-function update_last_updated($db, $hostnames) {
+function update_last_updated($db, $hostnames, $client_ip) {
     $quoted = array_map(function($h) use ($db) { return $db->quote($h); }, array_keys($hostnames));
-    $db->exec('UPDATE `hostnames` SET `last_updated` = NOW() WHERE `hostname` IN (' . implode(',', $quoted) . ')');
+    $db->exec('UPDATE `hostnames` SET `last_updated` = NOW(), `last_client_ip` = ' . $db->quote($client_ip) .
+        ' WHERE `hostname` IN (' . implode(',', $quoted) . ')');
 }
 
 function verify_hostname($db, $user_id, $hostname)
