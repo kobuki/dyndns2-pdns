@@ -20,9 +20,50 @@ Only one backend is active at a time. Both backends use the same update endpoint
 
 ## Installation
 
-1. Deploy the project to any path served by your web server (only the `public/` directory needs to be web-accessible).
+1. Deploy the project to any path on your server (only the `public/` directory needs to be web-accessible).
 2. Copy `inc/config-sample.inc.php` to `inc/config.inc.php` and fill in the values for your chosen backend and database.
 3. Create the database schema using `sql/dyndns.sql`.
+4. Configure your web server (see below).
+
+
+## Web server configuration
+
+Only the essentials are shown. DynDNS2 clients typically call `/nic/update` — the rewrite rules below map that to the actual endpoint.
+
+### Apache
+
+```apache
+<VirtualHost *:80>
+    ServerName ddns.example.com
+    DocumentRoot /path/to/dyndns2-pdns/public
+
+    <FilesMatch ".+\.php$">
+        SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+
+    RewriteEngine On
+    RewriteRule ^(/nic)?/update(\.php)?$ /update.php [L]
+</VirtualHost>
+```
+
+### nginx
+
+```nginx
+server {
+    server_name ddns.example.com;
+    root /path/to/dyndns2-pdns/public;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    rewrite ^(/nic)?/update(\.php)?$ /update.php last;
+}
+```
+
+If the service sits behind a reverse proxy, ensure it passes `X-Real-IP` or `X-Forwarded-For` so client IPs are logged correctly.
 
 
 ## Configuration
