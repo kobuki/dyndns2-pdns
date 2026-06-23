@@ -1,62 +1,211 @@
 # dyndns2-pdns
 
-A thin wrapper around PowerDNS API to implement a basic DynDNS 2 protocol layer, see [[1](#references)] and [[2](#references)].\
-Functionality is extended by the ability to update & delete TXT records making this usable for name validation by letsencrypt, see [[3](#references)] and [[4](#refrences)]. In order to support embedded installations of acme clients we also support acmeproxy syntax.
+A thin PHP wrapper implementing the DynDNS 2 protocol [[1](#references), [2](#references)] on top of a DNS backend. Supports updating A, AAAA, and TXT records, with ACME proxy compatibility for automated Let's Encrypt DNS-01 challenges [[3](#references), [4](#references)].
+
+Based on the original work by [BastiG](https://github.com/BastiG).
+
+## Backends
+
+Select the active backend via the `BACKEND` constant in `config.inc.php`:
+
+| Backend | Value | Requires |
+|---|---|---|
+| PowerDNS | `'pdns'` | PDNS API key and URL |
+| Cloudflare | `'cloudflare'` | CF API token (Zone/Read + Zone/DNS/Edit, scoped to the zone) |
+
+Only one backend is active at a time. Both backends use the same update endpoint and database schema. The `domain` column in the `hostnames` table holds the zone name with a trailing dot (e.g. `example.com.`) for both backends.
+
+**Cloudflare note:** the zone ID is resolved automatically from the zone name via the API and cached for the duration of the request — no manual zone ID configuration needed.
+
 
 ## Installation
 
-* Deploy to any path on your webserver.
-* Update `config.inc.php` to match your DB settings.
-* Use the scripts in `sql/` to create the database tables.
-* Create users in the DB like
-  ```sql
-  INSERT INTO `users` (`active`,`username`,`password`) VALUES (1,'username','$2y$10$cjaSgipjSg6V/XStI9lx7.LJTo2QcDvxxGhlrnu6uZe8j02xh6Rhm')
-  ```
-  Note that '$2y$10$cjaSgipjSg6V/XStI9lx7.LJTo2QcDvxxGhlrnu6uZe8j02xh6Rhm' is what you get from `htpasswd -bnBC 10 "" 'password' | tr -d ':'`
-  
-  Setup the domain names and permissions to use DynDNS update like
-  ```sql
-  INSERT INTO `hostnames` (`hostname`) VALUES ('web1.mycorp.com.');
-  INSERT INTO `hostnames` (`hostname`) VALUES ('.sub.mycorp.com.');
-  INSERT INTO `permissions` (`user_id`,`hostname_id`) VALUES (1,1);
-  INSERT INTO `permissions` (`user_id`,`hostname_id`) VALUES (1,2);
-  ```
-  Hostnames need to end with a '.' signifying an FQDN.\
-  Note: The values for user_id and hostname_id may need to be adapted, i.e. using the id's of the user and hostnames we created previously.\
-  A hostname value starting with '.' (like .sub.mycorp.com) is a wildcard entry, this means the user my update any record that ends with this value in the zone provided.
+1. Deploy the project to any path served by your web server (only the `public/` directory needs to be web-accessible).
+2. Copy `inc/config-sample.inc.php` to `inc/config.inc.php` and fill in the values for your chosen backend and database.
+3. Create the database schema using `sql/dyndns.sql`.
 
 
-## Hooks
+## Configuration
 
-TBD
+```php
+// Backend: 'pdns' or 'cloudflare'
+const BACKEND = 'pdns';
+
+const PDNS_API_KEY   = '<fill in>';
+const PDNS_ZONES_URL = 'http://127.0.0.1:8081/api/v1/servers/localhost/zones';
+
+const CF_API_TOKEN = '<fill in>';
+
+const DB_URI      = 'mysql:unix_socket=/run/mysqld/mysqld.sock;dbname=dyndns;charset=utf8mb4';
+const DB_USERNAME = 'dyndns';
+const DB_PASSWORD = '<fill in>';
+
+const MAX_UPDATE_HOSTNAMES = 20;
+const DEFAULT_TTL          = 60;
+```
 
 
-## How to use acmeproxy
+## Database setup
 
-acmeproxy requires three parameters:
-ENDPOINT_URL=https://www.myhost.com/dyn/update.php?acmeproxy=
-USERNAME=username
-PASSWORD=password
+### Users
+
+Passwords are stored as bcrypt hashes. Generate one with:
+
+```sh
+htpasswd -bnBC 10 "" 'yourpassword' | tr -d ':'
+```
+
+```sql
+INSERT INTO `users` (`active`, `username`, `password`)
+VALUES (1, 'username', '$2y$10$...');
+```
+
+### Hostnames and permissions
+
+Hostname values must end with `.` (FQDN). A hostname starting with `.` is a wildcard — the user may update any record ending with that suffix within the configured zone.
+
+```sql
+INSERT INTO `hostnames` (`hostname`, `domain`) VALUES ('web1.example.com.', 'example.com.');
+INSERT INTO `hostnames` (`hostname`, `domain`) VALUES ('.dyn.example.com.', 'example.com.');
+
+INSERT INTO `permissions` (`user_id`, `hostname_id`) VALUES (1, 1);
+INSERT INTO `permissions` (`user_id`, `hostname_id`) VALUES (1, 2);
+```
 
 
-## Examples
+## Authentication
 
-Update IPv4:\
-`https://username:password@www.myhost.com/dyn/update.php?hostname=web1.mycorp.com&myip=127.0.0.1`
+Three methods are supported. See `examples.txt` for working curl examples of each.
 
-Set TXT record:\
-`https://username:password@www.myhost.com/dyn/update.php?hostname=_acme-challenge.db1.sub.mycorp.com&txt=12345678`
+**HTTP Basic Auth** (standard DynDNS2 client behaviour):
+```
+https://username:password@ddns.example.com/update.php?...
+```
 
-Clear (and remove) TXT record:\
-`https://username:password@www.myhost.com/dyn/update.php?hostname=_acme-challenge.db1.sub.mycorp.com&txt=`
+**Query string credentials:**
+```
+https://ddns.example.com/update.php?username=user&password=pass&...
+```
+(`user` is accepted as an alias for `username`)
 
-Set TXT record via acmeproxy:\
-`https://username:password@www.myhost.com/dyn/update.php?acmeproxy=/present`
-`{"fqdn":"_acme-challenge.db1.sub.mycorp.com","value":"12345678"}`
+**Base64 URL token** — encodes `user_id:hostname_id:password` as base64 and uses it as the URL path. IP defaults to auto-detect when using this method:
+```sh
+TOKEN=$(printf '1:1:yourpassword' | base64 -w0)
+curl "https://ddns.example.com/$TOKEN"
+```
 
-Clear (and remove) TXT record via acmeproxy:\
-`https://username:password@www.myhost.com/dyn/update.php?acmeproxy=/cleanup`
-`{"fqdn":"_acme-challenge.db1.sub.mycorp.com","value":"12345678"}`
+
+## Update endpoint
+
+`GET /update.php`
+
+### Parameters
+
+| Parameter | Description |
+|---|---|
+| `hostname` | FQDN to update. Comma-separate for multiple (up to `MAX_UPDATE_HOSTNAMES`). Prefix with `_` for underscore labels (e.g. `_acme-challenge.example.com`). |
+| `myip` | IP address(es) to set. Comma-separate to set both A and AAAA in one request. Pass `auto` or omit the value to detect the caller's IP. Pass empty (`myip=`) to delete both A and AAAA records. |
+| `txt` | TXT record value to append. Pass empty (`txt=`) to delete all TXT records for the hostname. |
+
+`myip` and `txt` can be combined in a single request.
+
+### IP records (A / AAAA)
+
+```sh
+# Set A record
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=1.2.3.4"
+
+# Set AAAA record
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=2001:db8::1"
+
+# Set both A and AAAA
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=1.2.3.4,2001:db8::1"
+
+# Auto-detect caller IP
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=auto"
+
+# Delete A and AAAA records
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip="
+```
+
+### TXT records
+
+TXT records are always appended — existing records are preserved. This allows multiple simultaneous ACME challenge tokens for the same hostname. Passing an empty value deletes all TXT records for the hostname.
+
+```sh
+# Add TXT record
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&txt=hello"
+
+# Delete all TXT records
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&txt="
+```
+
+### Multiple hostnames
+
+```sh
+curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com,office.example.com&myip=1.2.3.4"
+```
+
+
+## ACME proxy
+
+The endpoint is compatible with the acmeproxy protocol [[3](#references), [4](#references)] for DNS-01 challenge automation.
+
+```
+?acmeproxy=present   — add the challenge TXT record
+?acmeproxy=cleanup   — remove the challenge TXT record
+```
+
+The JSON body must contain `fqdn` and `value`. Authentication uses the same methods as the standard endpoint.
+
+```sh
+# Present challenge
+curl -u user:pass -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"fqdn":"_acme-challenge.home.example.com.","value":"TOKEN"}' \
+  "https://ddns.example.com/update.php?acmeproxy=present"
+
+# Clean up
+curl -u user:pass -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"fqdn":"_acme-challenge.home.example.com.","value":"TOKEN"}' \
+  "https://ddns.example.com/update.php?acmeproxy=cleanup"
+```
+
+More curl examples, including error cases, are in `examples.txt`.
+
+
+## Response codes
+
+| Response | Meaning |
+|---|---|
+| `good` | Update successful |
+| `nochg` | No change requested (no `myip` or `txt` parameter supplied) |
+| `nohost` | Hostname not found or not permitted for this user |
+| `notfqdn` | Invalid or missing hostname |
+| `numhosts` | Too many hostnames in one request |
+| `dnserr` | Backend DNS update failed |
+| `dberror` | Database error |
+| HTTP 401 | Authentication failed |
+
+
+## Logging
+
+Every successful update writes a row to the `changelog` table:
+
+| Column | Description |
+|---|---|
+| `timestamp` | When the update occurred |
+| `client_ip` | IP address of the connecting client |
+| `username` | Authenticated user |
+| `hostname` | Updated hostname |
+| `operation` | `set` (A/AAAA upsert), `add` (TXT append), or `delete` |
+| `record_type` | `A`, `AAAA`, or `TXT` |
+| `record_content` | The value written (empty string for deletions) |
+
+The `hostnames` table also tracks `last_updated` (timestamp of the last successful update) and `last_client_ip` (the client IP that performed it).
+
+Client IP is detected from `X-Real-IP` or `X-Forwarded-For` (first token) when behind a reverse proxy, falling back to `REMOTE_ADDR`.
 
 
 ## References
