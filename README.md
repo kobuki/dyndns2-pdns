@@ -120,12 +120,12 @@ Three methods are supported. See `examples.txt` for working curl examples of eac
 
 **HTTP Basic Auth** (standard DynDNS2 client behaviour):
 ```
-https://username:password@ddns.example.com/update.php?...
+https://username:password@ddns.example.com/update?...
 ```
 
 **Query string credentials:**
 ```
-https://ddns.example.com/update.php?username=user&password=pass&...
+https://ddns.example.com/update?username=user&password=pass&...
 ```
 (`user` is accepted as an alias for `username`)
 
@@ -138,7 +138,7 @@ curl "https://ddns.example.com/$TOKEN"
 
 ## Update endpoint
 
-`GET /update.php`
+`GET /update`
 
 ### Parameters
 
@@ -154,19 +154,24 @@ curl "https://ddns.example.com/$TOKEN"
 
 ```sh
 # Set A record
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=1.2.3.4"
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&myip=1.2.3.4"
 
 # Set AAAA record
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=2001:db8::1"
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&myip=2001:db8::1"
 
 # Set both A and AAAA
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=1.2.3.4,2001:db8::1"
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&myip=1.2.3.4,2001:db8::1"
 
 # Auto-detect caller IP
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip=auto"
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&myip=auto"
+
+# Short URL — credentials and hostname embedded as a base64 token, IP auto-detected
+# Token encodes user_id:hostname_id:password  (e.g. "1:1:yourpassword")
+TOKEN=$(printf '1:1:yourpassword' | base64 -w0)
+curl "https://ddns.example.com/$TOKEN"
 
 # Delete A and AAAA records
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&myip="
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&myip="
 ```
 
 ### TXT records
@@ -175,16 +180,16 @@ TXT records are always appended — existing records are preserved. This allows 
 
 ```sh
 # Add TXT record
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&txt=hello"
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&txt=hello"
 
 # Delete all TXT records
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com&txt="
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com&txt="
 ```
 
 ### Multiple hostnames
 
 ```sh
-curl -u user:pass "https://ddns.example.com/update.php?hostname=home.example.com,office.example.com&myip=1.2.3.4"
+curl -u user:pass "https://ddns.example.com/update?hostname=home.example.com,office.example.com&myip=1.2.3.4"
 ```
 
 
@@ -204,13 +209,13 @@ The JSON body must contain `fqdn` and `value`. Authentication uses the same meth
 curl -u user:pass -X POST \
   -H 'Content-Type: application/json' \
   -d '{"fqdn":"_acme-challenge.home.example.com.","value":"TOKEN"}' \
-  "https://ddns.example.com/update.php?acmeproxy=present"
+  "https://ddns.example.com/update?acmeproxy=present"
 
 # Clean up
 curl -u user:pass -X POST \
   -H 'Content-Type: application/json' \
   -d '{"fqdn":"_acme-challenge.home.example.com.","value":"TOKEN"}' \
-  "https://ddns.example.com/update.php?acmeproxy=cleanup"
+  "https://ddns.example.com/update?acmeproxy=cleanup"
 ```
 
 More curl examples, including error cases, are in `examples.txt`.
