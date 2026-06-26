@@ -53,6 +53,10 @@
           </div>
           <div v-else>
             <div class="hostname-filters mb-3">
+              <VaCheckbox
+                v-model="showPermittedOnly"
+                label="Permitted only"
+              />
               <VaInput
                 v-model="hostnameSearch"
                 placeholder="Filter hostnames..."
@@ -63,10 +67,6 @@
                   <VaIcon name="search" />
                 </template>
               </VaInput>
-              <VaCheckbox
-                v-model="showPermittedOnly"
-                label="Permitted only"
-              />
             </div>
             <div class="hostname-list">
               <div
