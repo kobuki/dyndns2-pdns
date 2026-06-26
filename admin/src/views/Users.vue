@@ -68,37 +68,35 @@
         <VaInput
           v-model="form.username"
           label="Username"
-          class="full-width"
+          class="username-field"
           :error="!!errors.username"
           :error-messages="errors.username"
         />
-        <div class="password-row">
-          <VaInput
-            v-model="form.password"
-            :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
-            :type="showPassword ? 'text' : 'password'"
-            class="password-input"
-            :error="!!errors.password"
-            :error-messages="errors.password"
-          >
-            <template #appendInner>
-              <VaButton
-                :icon="showPassword ? 'visibility_off' : 'visibility'"
-                preset="plain"
-                size="small"
-                @click="showPassword = !showPassword"
-              />
-            </template>
-          </VaInput>
-          <div class="pw-actions">
-            <div class="pw-buttons">
-              <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
-              <VaButton icon="content_copy" preset="secondary" size="small" @click="copyPassword" />
-            </div>
-            <div class="pw-spacer"></div>
+        <VaInput
+          v-model="form.password"
+          :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
+          :type="showPassword ? 'text' : 'password'"
+          class="password-field"
+          :error="!!errors.password"
+          :error-messages="errors.password"
+        >
+          <template #appendInner>
+            <VaButton
+              :icon="showPassword ? 'visibility_off' : 'visibility'"
+              preset="plain"
+              size="small"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </VaInput>
+        <div class="pw-actions">
+          <div class="pw-buttons">
+            <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
+            <VaButton icon="content_copy" preset="secondary" size="small" @click="copyPassword" />
           </div>
+          <div class="pw-spacer"></div>
         </div>
-        <VaSwitch v-model="form.active" label="Active" />
+        <VaSwitch v-model="form.active" label="Active" class="switch-field" />
       </div>
     </VaModal>
 
@@ -283,33 +281,37 @@ onMounted(loadUsers)
 }
 .modal-form {
   width: 415px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 1rem;
+  column-gap: 0.5rem;
 }
-.password-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
+.username-field {
+  grid-column: 1;
+  grid-row: 1;
 }
-.password-input {
-  flex: 1;
-}
-.full-width {
-  width: 100%;
+.password-field {
+  grid-column: 1;
+  grid-row: 2;
 }
 .pw-actions {
+  grid-column: 2;
+  grid-row: 2;
   display: flex;
   flex-direction: column;
+  align-self: end;
 }
 .pw-buttons {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex: 1;
 }
 .pw-spacer {
   height: 0.375rem;
+}
+.switch-field {
+  grid-column: 1 / -1;
+  grid-row: 3;
 }
 .text-danger {
   color: var(--va-danger);
