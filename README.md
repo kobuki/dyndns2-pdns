@@ -49,6 +49,8 @@ Only the essentials are shown. DynDNS2 clients typically call `/nic/update` — 
 
 ### Admin UI — separate vhost (Apache)
 
+The admin UI is a Vue 3 SPA backed by a PHP/Eloquent API. Boldly vibe coded with Claude!
+
 The admin is served from its own vhost with `DocumentRoot` pointing to `admin/dist/`.
 The API lives at `/api/` within the same vhost.
 
