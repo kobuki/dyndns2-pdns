@@ -52,16 +52,22 @@
             No hostnames configured.
           </div>
           <div v-else>
-            <VaInput
-              v-model="hostnameSearch"
-              placeholder="Filter hostnames..."
-              clearable
-              class="mb-3"
-            >
-              <template #prependInner>
-                <VaIcon name="search" />
-              </template>
-            </VaInput>
+            <div class="hostname-filters mb-3">
+              <VaInput
+                v-model="hostnameSearch"
+                placeholder="Filter hostnames..."
+                clearable
+                class="filter-search"
+              >
+                <template #prependInner>
+                  <VaIcon name="search" />
+                </template>
+              </VaInput>
+              <VaCheckbox
+                v-model="showPermittedOnly"
+                label="Permitted only"
+              />
+            </div>
             <div class="hostname-list">
               <div
                 v-for="hostname in filteredHostnames"
@@ -136,10 +142,15 @@ const sortedUsers = computed(() =>
 )
 const hostnames = ref([])
 const hostnameSearch = ref('')
+const showPermittedOnly = ref(false)
 const filteredHostnames = computed(() => {
-  if (!hostnameSearch.value) return hostnames.value
-  const q = hostnameSearch.value.toLowerCase()
-  return hostnames.value.filter(h => h.hostname.toLowerCase().includes(q))
+  let list = hostnames.value
+  if (showPermittedOnly.value) list = list.filter(h => userPermissions.value.has(h.id))
+  if (hostnameSearch.value) {
+    const q = hostnameSearch.value.toLowerCase()
+    list = list.filter(h => h.hostname.toLowerCase().includes(q))
+  }
+  return list
 })
 const selectedUser = ref(null)
 const userPermissions = ref(new Set())
@@ -157,6 +168,7 @@ async function loadAll() {
 
 async function selectUser(user) {
   selectedUser.value = user
+  showPermittedOnly.value = false
   const res = await axios.get(`/api/permissions.php?user_id=${user.id}`)
   userPermissions.value = new Set(res.data)
 }
@@ -278,6 +290,14 @@ onMounted(loadAll)
 }
 .hostname-check-row:last-child {
   border-bottom: none;
+}
+.hostname-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.filter-search {
+  flex: 1;
 }
 .placeholder-text {
   color: var(--va-secondary);
