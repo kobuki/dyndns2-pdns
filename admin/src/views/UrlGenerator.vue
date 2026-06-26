@@ -27,7 +27,7 @@
         <div class="password-row mb-4">
           <VaInput
             v-model="password"
-            :label="'Password'"
+            label="Password"
             :type="showPassword ? 'text' : 'password'"
             class="password-input"
           >
@@ -40,9 +40,10 @@
               />
             </template>
           </VaInput>
-          <VaButton preset="secondary" size="small" @click="generatePassword" class="ml-2">
-            Generate
-          </VaButton>
+          <div class="pw-actions">
+            <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
+            <VaButton icon="content_copy" preset="secondary" size="small" @click="copy(password)" />
+          </div>
         </div>
 
         <VaCheckbox
@@ -217,6 +218,12 @@ onMounted(loadData)
 }
 .password-input {
   flex: 1;
+}
+.pw-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 .output-row {
   display: flex;

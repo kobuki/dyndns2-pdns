@@ -89,11 +89,10 @@
               />
             </template>
           </VaInput>
-          <VaButton
-            preset="secondary"
-            size="small"
-            @click="generatePassword"
-          >Generate</VaButton>
+          <div class="pw-actions">
+            <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
+            <VaButton icon="content_copy" preset="secondary" size="small" @click="copyPassword" />
+          </div>
         </div>
         <VaSwitch v-model="form.active" label="Active" />
       </div>
@@ -121,6 +120,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+
+function copyPassword() {
+  navigator.clipboard.writeText(form.value.password).catch(() => {})
+}
 
 const currentPage = ref(1)
 const perPage = 15
@@ -287,6 +290,12 @@ onMounted(loadUsers)
 }
 .password-input {
   flex: 1;
+}
+.pw-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
 }
 .text-danger {
   color: var(--va-danger);
