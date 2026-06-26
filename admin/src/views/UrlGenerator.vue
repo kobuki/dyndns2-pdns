@@ -41,8 +41,11 @@
             </template>
           </VaInput>
           <div class="pw-actions">
-            <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
-            <VaButton icon="content_copy" preset="secondary" size="small" @click="copy(password)" />
+            <div class="pw-buttons">
+              <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
+              <VaButton icon="content_copy" preset="secondary" size="small" @click="copy(password)" />
+            </div>
+            <div class="pw-spacer"></div>
           </div>
         </div>
 
@@ -221,9 +224,16 @@ onMounted(loadData)
 }
 .pw-actions {
   display: flex;
+  flex-direction: column;
+}
+.pw-buttons {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  flex: 1;
+}
+.pw-spacer {
+  height: 0.375rem;
 }
 .output-row {
   display: flex;

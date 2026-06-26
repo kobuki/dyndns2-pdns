@@ -68,6 +68,7 @@
         <VaInput
           v-model="form.username"
           label="Username"
+          class="full-width"
           :error="!!errors.username"
           :error-messages="errors.username"
         />
@@ -90,8 +91,11 @@
             </template>
           </VaInput>
           <div class="pw-actions">
-            <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
-            <VaButton icon="content_copy" preset="secondary" size="small" @click="copyPassword" />
+            <div class="pw-buttons">
+              <VaButton preset="secondary" size="small" @click="generatePassword">Generate</VaButton>
+              <VaButton icon="content_copy" preset="secondary" size="small" @click="copyPassword" />
+            </div>
+            <div class="pw-spacer"></div>
           </div>
         </div>
         <VaSwitch v-model="form.active" label="Active" />
@@ -291,11 +295,21 @@ onMounted(loadUsers)
 .password-input {
   flex: 1;
 }
+.full-width {
+  width: 100%;
+}
 .pw-actions {
+  display: flex;
+  flex-direction: column;
+}
+.pw-buttons {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  flex: 1;
+}
+.pw-spacer {
+  height: 1.25rem;
 }
 .text-danger {
   color: var(--va-danger);
