@@ -3,14 +3,14 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/admin/dist/',
+  base: '/',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
   },
   server: {
     proxy: {
-      '/admin/api': {
+      '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },

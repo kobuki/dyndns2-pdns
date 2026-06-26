@@ -149,7 +149,7 @@ const filteredUsers = computed(() => {
 async function loadUsers() {
   loading.value = true
   try {
-    const res = await axios.get('/admin/api/users.php')
+    const res = await axios.get('/api/users.php')
     users.value = res.data
   } catch (e) {
     console.error(e)
@@ -203,9 +203,9 @@ async function saveUser() {
     if (form.value.password) payload.password = form.value.password
 
     if (editingUser.value) {
-      await axios.put(`/admin/api/users.php?id=${editingUser.value.id}`, payload)
+      await axios.put(`/api/users.php?id=${editingUser.value.id}`, payload)
     } else {
-      await axios.post('/admin/api/users.php', payload)
+      await axios.post('/api/users.php', payload)
     }
     await loadUsers()
     closeModal()
@@ -218,7 +218,7 @@ async function saveUser() {
 
 async function toggleActive(user) {
   try {
-    await axios.put(`/admin/api/users.php?id=${user.id}`, {
+    await axios.put(`/api/users.php?id=${user.id}`, {
       username: user.username,
       active: user.active ? 0 : 1,
     })
@@ -232,7 +232,7 @@ async function confirmDelete(user) {
   deleteTarget.value = user
   deleteBlockedCount.value = 0
   try {
-    const res = await axios.get(`/admin/api/permissions.php?user_id=${user.id}`)
+    const res = await axios.get(`/api/permissions.php?user_id=${user.id}`)
     deleteBlockedCount.value = res.data?.length || 0
   } catch (e) {}
   showDeleteModal.value = true
@@ -244,7 +244,7 @@ async function doDelete() {
     return
   }
   try {
-    await axios.delete(`/admin/api/users.php?id=${deleteTarget.value.id}`)
+    await axios.delete(`/api/users.php?id=${deleteTarget.value.id}`)
     await loadUsers()
   } catch (e) {
     console.error(e)

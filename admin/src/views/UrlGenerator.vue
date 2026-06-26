@@ -153,7 +153,7 @@ async function onUserChange() {
   if (!selectedUserId.value) return
   if (!allPermissions.value.has(selectedUserId.value)) {
     try {
-      const res = await axios.get(`/admin/api/permissions.php?user_id=${selectedUserId.value}`)
+      const res = await axios.get(`/api/permissions.php?user_id=${selectedUserId.value}`)
       allPermissions.value.set(selectedUserId.value, new Set(res.data))
     } catch (e) {}
   }
@@ -168,7 +168,7 @@ async function generate() {
     try {
       const user = users.value.find(u => u.id === selectedUserId.value)
       if (!user) throw new Error('User not found')
-      await axios.put(`/admin/api/users.php?id=${selectedUserId.value}`, {
+      await axios.put(`/api/users.php?id=${selectedUserId.value}`, {
         username: user.username,
         active: user.active,
         password: password.value,
@@ -194,9 +194,9 @@ function copy(text) {
 async function loadData() {
   try {
     const [uRes, hRes, cfgRes] = await Promise.all([
-      axios.get('/admin/api/users.php'),
-      axios.get('/admin/api/hostnames.php'),
-      axios.get('/admin/api/config.php'),
+      axios.get('/api/users.php'),
+      axios.get('/api/hostnames.php'),
+      axios.get('/api/config.php'),
     ])
     users.value = uRes.data
     allHostnames.value = hRes.data

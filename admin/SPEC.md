@@ -191,59 +191,58 @@ GET    /admin/api/config.php                 return { base_url }
 
 ## Web server configuration
 
-The admin lives outside the DDNS `public/` document root, so both backends need
-explicit path mappings rather than relying on the document root.
-
-### nginx
-
-```nginx
-location /admin/api/ {
-    auth_basic "Admin";
-    auth_basic_user_file /path/to/.htpasswd;
-
-    alias /path/to/dyndns2-pdns/admin/api/;
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/run/php/php-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME /path/to/dyndns2-pdns/admin/api/$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}
-
-location /admin/dist/ {
-    auth_basic "Admin";
-    auth_basic_user_file /path/to/.htpasswd;
-
-    alias /path/to/dyndns2-pdns/admin/dist/;
-    try_files $uri /admin/dist/index.html;
-}
-```
+The admin is served from a dedicated vhost. `DocumentRoot` points to `admin/dist/`
+directly, so no aliases are needed for the frontend. The API is aliased at `/api/`
+within the same vhost.
 
 ### Apache
 
 ```apache
-Alias /admin/dist/ /path/to/dyndns2-pdns/admin/dist/
-Alias /admin/api/  /path/to/dyndns2-pdns/admin/api/
+<VirtualHost *:80>
+    ServerName admin.ddns.example.com
+    DocumentRoot /path/to/dyndns2-pdns/admin/dist
 
-<Directory "/path/to/dyndns2-pdns/admin/dist">
     AuthType Basic
     AuthName "Admin"
     AuthUserFile /path/to/.htpasswd
     Require valid-user
 
-    FallbackResource /admin/dist/index.html
-</Directory>
+    FallbackResource /index.html
 
-<Directory "/path/to/dyndns2-pdns/admin/api">
-    AuthType Basic
-    AuthName "Admin"
-    AuthUserFile /path/to/.htpasswd
-    Require valid-user
+    Alias /api/ /path/to/dyndns2-pdns/admin/api/
 
-    <FilesMatch ".+\.php$">
-        SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
-    </FilesMatch>
-</Directory>
+    <Directory "/path/to/dyndns2-pdns/admin/api">
+        <FilesMatch ".+\.php$">
+            SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
+        </FilesMatch>
+    </Directory>
+</VirtualHost>
+```
+
+### nginx
+
+```nginx
+server {
+    server_name admin.ddns.example.com;
+    root /path/to/dyndns2-pdns/admin/dist;
+
+    auth_basic "Admin";
+    auth_basic_user_file /path/to/.htpasswd;
+
+    location /api/ {
+        alias /path/to/dyndns2-pdns/admin/api/;
+
+        location ~ \.php$ {
+            fastcgi_pass unix:/run/php/php-fpm.sock;
+            fastcgi_param SCRIPT_FILENAME /path/to/dyndns2-pdns/admin/api/$fastcgi_script_name;
+            include fastcgi_params;
+        }
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}
 ```
 
 ## Decisions

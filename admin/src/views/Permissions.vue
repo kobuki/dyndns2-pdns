@@ -126,8 +126,8 @@ const matrixView = ref(false)
 
 async function loadAll() {
   const [uRes, hRes] = await Promise.all([
-    axios.get('/admin/api/users.php'),
-    axios.get('/admin/api/hostnames.php'),
+    axios.get('/api/users.php'),
+    axios.get('/api/hostnames.php'),
   ])
   users.value = uRes.data
   hostnames.value = hRes.data
@@ -135,7 +135,7 @@ async function loadAll() {
 
 async function selectUser(user) {
   selectedUser.value = user
-  const res = await axios.get(`/admin/api/permissions.php?user_id=${user.id}`)
+  const res = await axios.get(`/api/permissions.php?user_id=${user.id}`)
   userPermissions.value = new Set(res.data)
 }
 
@@ -152,12 +152,12 @@ async function togglePermission(hostname, checked) {
 
   try {
     if (checked) {
-      await axios.post('/admin/api/permissions.php', {
+      await axios.post('/api/permissions.php', {
         user_id: selectedUser.value.id,
         hostname_id: hostname.id,
       })
     } else {
-      await axios.delete('/admin/api/permissions.php', {
+      await axios.delete('/api/permissions.php', {
         data: { user_id: selectedUser.value.id, hostname_id: hostname.id },
       })
     }
@@ -177,7 +177,7 @@ async function loadMatrixPermissions() {
   const map = new Map()
   const results = await Promise.all(
     users.value.map(u =>
-      axios.get(`/admin/api/permissions.php?user_id=${u.id}`).then(r => ({ userId: u.id, perms: r.data }))
+      axios.get(`/api/permissions.php?user_id=${u.id}`).then(r => ({ userId: u.id, perms: r.data }))
     )
   )
   for (const { userId, perms } of results) {
@@ -197,12 +197,12 @@ async function toggleMatrixPermission(user, hostname, checked) {
 
   try {
     if (checked) {
-      await axios.post('/admin/api/permissions.php', {
+      await axios.post('/api/permissions.php', {
         user_id: user.id,
         hostname_id: hostname.id,
       })
     } else {
-      await axios.delete('/admin/api/permissions.php', {
+      await axios.delete('/api/permissions.php', {
         data: { user_id: user.id, hostname_id: hostname.id },
       })
     }

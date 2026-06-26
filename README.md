@@ -44,47 +44,48 @@ Only the essentials are shown. DynDNS2 clients typically call `/nic/update` — 
     RewriteEngine On
     RewriteRule ^(/nic)?/update(\.php)?$ /update.php [L]
 
-    # Admin UI — Alias needed because admin/ is outside the document root
-    Alias /admin/dist/ /path/to/dyndns2-pdns/admin/dist/
-    Alias /admin/api/  /path/to/dyndns2-pdns/admin/api/
+</VirtualHost>
+```
 
-    <Directory "/path/to/dyndns2-pdns/admin/dist">
-        AuthType Basic
-        AuthName "Admin"
-        AuthUserFile /path/to/.htpasswd
-        Require valid-user
-        FallbackResource /admin/dist/index.html
-    </Directory>
+### Admin UI — separate vhost (Apache)
+
+The admin is served from its own vhost with `DocumentRoot` pointing to `admin/dist/`.
+The API lives at `/api/` within the same vhost.
+
+```apache
+<VirtualHost *:80>
+    ServerName admin.ddns.example.com
+    DocumentRoot /path/to/dyndns2-pdns/admin/dist
+
+    AuthType Basic
+    AuthName "Admin"
+    AuthUserFile /path/to/.htpasswd
+    Require valid-user
+
+    FallbackResource /index.html
+
+    Alias /api/ /path/to/dyndns2-pdns/admin/api/
 
     <Directory "/path/to/dyndns2-pdns/admin/api">
-        AuthType Basic
-        AuthName "Admin"
-        AuthUserFile /path/to/.htpasswd
-        Require valid-user
+        <FilesMatch ".+\.php$">
+            SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
+        </FilesMatch>
     </Directory>
 </VirtualHost>
 ```
 
-### nginx
+### Admin UI — separate vhost (nginx)
 
 ```nginx
 server {
-    server_name ddns.example.com;
-    root /path/to/dyndns2-pdns/public;
+    server_name admin.ddns.example.com;
+    root /path/to/dyndns2-pdns/admin/dist;
 
-    location ~ \.php$ {
-        fastcgi_pass unix:/run/php/php-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
+    auth_basic "Admin";
+    auth_basic_user_file /path/to/.htpasswd;
 
-    rewrite ^(/nic)?/update(\.php)?$ /update.php last;
-
-    # Admin UI — alias needed because admin/ is outside the document root
-    location /admin/api/ {
+    location /api/ {
         alias /path/to/dyndns2-pdns/admin/api/;
-        auth_basic "Admin";
-        auth_basic_user_file /path/to/.htpasswd;
 
         location ~ \.php$ {
             fastcgi_pass unix:/run/php/php-fpm.sock;
@@ -93,11 +94,8 @@ server {
         }
     }
 
-    location /admin/dist/ {
-        alias /path/to/dyndns2-pdns/admin/dist/;
-        auth_basic "Admin";
-        auth_basic_user_file /path/to/.htpasswd;
-        try_files $uri /admin/dist/index.html;
+    location / {
+        try_files $uri /index.html;
     }
 }
 ```

@@ -74,9 +74,9 @@ const stats = ref(null)
 async function loadStats() {
   try {
     const [usersRes, hostnamesRes, clRes] = await Promise.all([
-      axios.get('/admin/api/users.php'),
-      axios.get('/admin/api/hostnames.php'),
-      axios.get('/admin/api/changelog.php?per_page=1'),
+      axios.get('/api/users.php'),
+      axios.get('/api/hostnames.php'),
+      axios.get('/api/changelog.php?per_page=1'),
     ])
     const lastEntry = clRes.data.data?.[0]
     stats.value = {

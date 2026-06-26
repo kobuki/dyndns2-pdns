@@ -17,6 +17,6 @@ const routes = [
 ]
 
 export default createRouter({
-  history: createWebHistory('/admin/dist/'),
+  history: createWebHistory('/'),
   routes,
 })

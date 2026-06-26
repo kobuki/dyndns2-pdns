@@ -151,7 +151,7 @@ const filteredHostnames = computed(() => {
 async function loadHostnames() {
   loading.value = true
   try {
-    const res = await axios.get('/admin/api/hostnames.php')
+    const res = await axios.get('/api/hostnames.php')
     hostnames.value = res.data
   } catch (e) {
     console.error(e)
@@ -186,7 +186,7 @@ async function onHostnameBlur() {
   if (!val) return
   try {
     const fqdn = val.endsWith('.') ? val.slice(0, -1) : val
-    const res = await axios.get(`/admin/api/hostnames.php?guess=${encodeURIComponent(fqdn)}`)
+    const res = await axios.get(`/api/hostnames.php?guess=${encodeURIComponent(fqdn)}`)
     if (res.data?.domain) {
       guessedDomain.value = res.data.domain
       if (!form.value.domain) {
@@ -215,9 +215,9 @@ async function saveHostname() {
 
   try {
     if (editingHostname.value) {
-      await axios.put(`/admin/api/hostnames.php?id=${editingHostname.value.id}`, form.value)
+      await axios.put(`/api/hostnames.php?id=${editingHostname.value.id}`, form.value)
     } else {
-      await axios.post('/admin/api/hostnames.php', form.value)
+      await axios.post('/api/hostnames.php', form.value)
     }
     await loadHostnames()
     closeModal()
@@ -234,10 +234,10 @@ async function confirmDelete(hostname) {
   // Check permissions count via delete endpoint — we'll rely on the error response
   // Instead, check by fetching all users' permissions (lightweight approach)
   try {
-    const usersRes = await axios.get('/admin/api/users.php')
+    const usersRes = await axios.get('/api/users.php')
     let count = 0
     const checks = await Promise.all(
-      usersRes.data.map(u => axios.get(`/admin/api/permissions.php?user_id=${u.id}`))
+      usersRes.data.map(u => axios.get(`/api/permissions.php?user_id=${u.id}`))
     )
     for (const r of checks) {
       if (r.data?.includes(hostname.id)) count++
@@ -253,7 +253,7 @@ async function doDelete() {
     return
   }
   try {
-    await axios.delete(`/admin/api/hostnames.php?id=${deleteTarget.value.id}`)
+    await axios.delete(`/api/hostnames.php?id=${deleteTarget.value.id}`)
     await loadHostnames()
   } catch (e) {
     console.error(e)

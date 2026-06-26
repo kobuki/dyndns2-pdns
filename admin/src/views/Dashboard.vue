@@ -62,10 +62,10 @@ async function loadData() {
     const from = new Date(now - 24 * 3600 * 1000).toISOString().substring(0, 10)
 
     const [uRes, hRes, clRes, cl24Res] = await Promise.all([
-      axios.get('/admin/api/users.php'),
-      axios.get('/admin/api/hostnames.php'),
-      axios.get('/admin/api/changelog.php?per_page=20'),
-      axios.get(`/admin/api/changelog.php?from=${from}&per_page=1`),
+      axios.get('/api/users.php'),
+      axios.get('/api/hostnames.php'),
+      axios.get('/api/changelog.php?per_page=20'),
+      axios.get(`/api/changelog.php?from=${from}&per_page=1`),
     ])
 
     users.value = uRes.data
@@ -75,7 +75,7 @@ async function loadData() {
 
     // Count total permissions by summing across users
     const permResults = await Promise.all(
-      uRes.data.map(u => axios.get(`/admin/api/permissions.php?user_id=${u.id}`))
+      uRes.data.map(u => axios.get(`/api/permissions.php?user_id=${u.id}`))
     )
     permissions.value = permResults.reduce((sum, r) => sum + (r.data?.length || 0), 0)
   } catch (e) {

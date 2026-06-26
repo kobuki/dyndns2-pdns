@@ -160,7 +160,7 @@ async function loadChangelog(page) {
   if (page !== undefined) currentPage.value = page
   loading.value = true
   try {
-    const res = await axios.get('/admin/api/changelog.php', { params: buildParams() })
+    const res = await axios.get('/api/changelog.php', { params: buildParams() })
     rows.value = res.data.data || []
     total.value = res.data.total || 0
     lastPage.value = res.data.last_page || 1
@@ -173,7 +173,7 @@ async function loadChangelog(page) {
 
 async function loadUsernames() {
   try {
-    const res = await axios.get('/admin/api/users.php')
+    const res = await axios.get('/api/users.php')
     usernameOptions.value = res.data.map(u => u.username)
   } catch (e) {}
 }
@@ -195,7 +195,7 @@ function exportCsv() {
   delete params.per_page
   params.export = 'csv'
   const qs = new URLSearchParams(params).toString()
-  window.location.href = `/admin/api/changelog.php?${qs}`
+  window.location.href = `/api/changelog.php?${qs}`
 }
 
 onMounted(async () => {
