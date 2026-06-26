@@ -202,19 +202,26 @@ within the same vhost.
     ServerName admin.ddns.example.com
     DocumentRoot /path/to/dyndns2-pdns/admin/dist
 
-    AuthType Basic
-    AuthName "Admin"
-    AuthUserFile /path/to/.htpasswd
-    Require valid-user
+    <FilesMatch ".+\.php$">
+        SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
+    </FilesMatch>
 
-    FallbackResource /index.html
+    <Directory "/path/to/dyndns2-pdns/admin/dist">
+        AuthType Basic
+        AuthName "Admin"
+        AuthUserFile /path/to/.htpasswd
+        Require valid-user
+
+        FallbackResource /index.html
+    </Directory>
 
     Alias /api/ /path/to/dyndns2-pdns/admin/api/
 
     <Directory "/path/to/dyndns2-pdns/admin/api">
-        <FilesMatch ".+\.php$">
-            SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
-        </FilesMatch>
+        AuthType Basic
+        AuthName "Admin"
+        AuthUserFile /path/to/.htpasswd
+        Require valid-user
     </Directory>
 </VirtualHost>
 ```
