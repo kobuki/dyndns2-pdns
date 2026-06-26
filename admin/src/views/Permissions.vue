@@ -24,10 +24,11 @@
               :class="{ 'selected': selectedUser?.id === user.id }"
               @click="selectUser(user)"
               clickable
+              class="user-list-item"
             >
               <VaListItemSection>
-                <VaListItemLabel>{{ user.username }}</VaListItemLabel>
-                <VaListItemLabel caption>
+                <VaListItemLabel class="user-label">
+                  {{ user.username }}
                   <VaBadge
                     :text="user.active ? 'active' : 'inactive'"
                     :color="user.active ? 'success' : 'secondary'"
@@ -259,8 +260,16 @@ onMounted(loadAll)
   font-style: italic;
   padding: 1rem 0;
 }
+.user-list-item {
+  cursor: pointer;
+}
+.user-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .status-badge {
-  margin-top: 0.25rem;
+  flex-shrink: 0;
 }
 .matrix-scroll {
   overflow-x: auto;

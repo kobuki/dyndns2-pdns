@@ -22,6 +22,8 @@
           :items="filteredUsers"
           :columns="columns"
           :loading="loading"
+          :current-page="currentPage"
+          :per-page="perPage"
           striped
         >
           <template #cell(active)="{ row }">
@@ -47,6 +49,10 @@
             />
           </template>
         </VaDataTable>
+
+        <div class="pagination-row mt-4" v-if="lastPage > 1">
+          <VaPagination v-model="currentPage" :pages="lastPage" />
+        </div>
       </VaCardContent>
     </VaCard>
 
@@ -117,6 +123,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+
+const currentPage = ref(1)
+const perPage = 15
 import axios from 'axios'
 import { generateSecurePassword } from '../utils/password.js'
 
@@ -145,6 +154,8 @@ const filteredUsers = computed(() => {
   const q = search.value.toLowerCase()
   return users.value.filter(u => u.username.toLowerCase().includes(q))
 })
+
+const lastPage = computed(() => Math.ceil(filteredUsers.value.length / perPage) || 1)
 
 async function loadUsers() {
   loading.value = true
@@ -280,5 +291,9 @@ onMounted(loadUsers)
   color: var(--va-danger);
   display: block;
   margin-top: 0.5rem;
+}
+.pagination-row {
+  display: flex;
+  justify-content: center;
 }
 </style>

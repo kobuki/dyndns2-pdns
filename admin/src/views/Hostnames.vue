@@ -22,6 +22,8 @@
           :items="filteredHostnames"
           :columns="columns"
           :loading="loading"
+          :current-page="currentPage"
+          :per-page="perPage"
           striped
         >
           <template #cell(actions)="{ row }">
@@ -40,6 +42,10 @@
             />
           </template>
         </VaDataTable>
+
+        <div class="pagination-row mt-4" v-if="lastPage > 1">
+          <VaPagination v-model="currentPage" :pages="lastPage" />
+        </div>
       </VaCardContent>
     </VaCard>
 
@@ -115,6 +121,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+
+const currentPage = ref(1)
+const perPage = 15
 import axios from 'axios'
 
 const loading = ref(false)
@@ -147,6 +156,8 @@ const filteredHostnames = computed(() => {
     h.domain.toLowerCase().includes(q)
   )
 })
+
+const lastPage = computed(() => Math.ceil(filteredHostnames.value.length / perPage) || 1)
 
 async function loadHostnames() {
   loading.value = true
@@ -293,5 +304,9 @@ onMounted(loadHostnames)
   color: var(--va-danger);
   display: block;
   margin-top: 0.5rem;
+}
+.pagination-row {
+  display: flex;
+  justify-content: center;
 }
 </style>
