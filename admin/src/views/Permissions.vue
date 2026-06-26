@@ -55,22 +55,37 @@
             No hostnames configured.
           </div>
           <div v-else>
-            <div
-              v-for="hostname in hostnames"
-              :key="hostname.id"
-              class="hostname-check-row"
+            <VaInput
+              v-model="hostnameSearch"
+              placeholder="Filter hostnames..."
+              clearable
+              class="mb-3"
             >
-              <VaCheckbox
-                :model-value="userPermissions.has(hostname.id)"
-                @update:model-value="togglePermission(hostname, $event)"
-                :label="hostname.hostname"
-              />
-              <VaBadge
-                v-if="hostname.hostname.startsWith('.')"
-                text="wildcard"
-                color="warning"
-                class="ml-2"
-              />
+              <template #prependInner>
+                <VaIcon name="search" />
+              </template>
+            </VaInput>
+            <div class="hostname-list">
+              <div
+                v-for="hostname in filteredHostnames"
+                :key="hostname.id"
+                class="hostname-check-row"
+              >
+                <VaCheckbox
+                  :model-value="userPermissions.has(hostname.id)"
+                  @update:model-value="togglePermission(hostname, $event)"
+                  :label="hostname.hostname"
+                />
+                <VaBadge
+                  v-if="hostname.hostname.startsWith('.')"
+                  text="wildcard"
+                  color="warning"
+                  class="ml-2"
+                />
+              </div>
+              <div v-if="filteredHostnames.length === 0" class="placeholder-text">
+                No matches.
+              </div>
             </div>
           </div>
         </VaCardContent>
@@ -123,6 +138,12 @@ const sortedUsers = computed(() =>
   [...users.value].sort((a, b) => a.username.localeCompare(b.username))
 )
 const hostnames = ref([])
+const hostnameSearch = ref('')
+const filteredHostnames = computed(() => {
+  if (!hostnameSearch.value) return hostnames.value
+  const q = hostnameSearch.value.toLowerCase()
+  return hostnames.value.filter(h => h.hostname.toLowerCase().includes(q))
+})
 const selectedUser = ref(null)
 const userPermissions = ref(new Set())
 const matrixPermissions = ref(new Map())
@@ -242,9 +263,15 @@ onMounted(loadAll)
 }
 .user-panel {
   min-height: 300px;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
 }
 .hostname-panel {
   min-height: 300px;
+}
+.hostname-list {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
 }
 .selected {
   background: var(--va-primary-opacity-20, rgba(var(--va-primary-rgb), 0.15)) !important;
