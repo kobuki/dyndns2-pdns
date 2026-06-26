@@ -287,6 +287,8 @@ onMounted(loadHostnames)
 }
 .modal-form {
   width: 675px;
+  display: flex;
+  flex-direction: column;
 }
 .domain-row {
   display: flex;
