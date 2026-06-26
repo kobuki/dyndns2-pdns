@@ -247,7 +247,10 @@ onMounted(loadAll)
   min-height: 300px;
 }
 .selected {
-  background: var(--va-primary-opacity-20, rgba(var(--va-primary-rgb), 0.12));
+  background: var(--va-primary-opacity-20, rgba(var(--va-primary-rgb), 0.15)) !important;
+}
+.selected:hover {
+  background: var(--va-primary-opacity-20, rgba(var(--va-primary-rgb), 0.15)) !important;
 }
 .hostname-check-row {
   display: flex;
@@ -269,7 +272,7 @@ onMounted(loadAll)
   padding-bottom: 0.5rem;
 }
 .user-list-item:hover {
-  background: var(--va-background-element, rgba(0, 0, 0, 0.06));
+  background: var(--va-primary-opacity-10, rgba(var(--va-primary-rgb), 0.07));
 }
 .user-label {
   display: flex;
