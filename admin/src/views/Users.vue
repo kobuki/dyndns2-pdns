@@ -68,7 +68,6 @@
         <VaInput
           v-model="form.username"
           label="Username"
-          class="mb-4"
           :error="!!errors.username"
           :error-messages="errors.username"
         />
@@ -76,7 +75,6 @@
           v-model="form.password"
           :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
           :type="showPassword ? 'text' : 'password'"
-          class="mb-4"
           :error="!!errors.password"
           :error-messages="errors.password"
         >
@@ -275,6 +273,9 @@ onMounted(loadUsers)
 }
 .modal-form {
   min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 .text-danger {
   color: var(--va-danger);
