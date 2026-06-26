@@ -268,6 +268,9 @@ onMounted(loadAll)
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+.user-list-item:hover {
+  background: var(--va-background-element, rgba(0, 0, 0, 0.06));
+}
 .user-label {
   display: flex;
   align-items: center;
