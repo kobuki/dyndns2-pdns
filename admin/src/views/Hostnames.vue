@@ -27,19 +27,19 @@
           striped
         >
           <template #cell(actions)="{ row }">
-            <VaButton
-              icon="edit"
-              preset="plain"
-              size="small"
-              @click="openEditModal(row.rowData)"
-            />
-            <VaButton
-              icon="delete"
-              preset="plain"
-              size="small"
-              color="danger"
-              @click="confirmDelete(row.rowData)"
-            />
+            <div class="action-buttons">
+              <VaButton
+                icon="edit"
+                preset="plain"
+                @click="openEditModal(row.rowData)"
+              />
+              <VaButton
+                icon="delete"
+                preset="plain"
+                color="danger"
+                @click="confirmDelete(row.rowData)"
+              />
+            </div>
           </template>
         </VaDataTable>
 
@@ -311,5 +311,10 @@ onMounted(loadHostnames)
 .pagination-row {
   display: flex;
   justify-content: center;
+}
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 </style>
