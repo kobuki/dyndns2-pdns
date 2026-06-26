@@ -270,12 +270,6 @@ onMounted(loadAll)
   max-height: calc(100vh - 300px);
   overflow-y: auto;
 }
-.selected {
-  background: rgba(var(--va-primary-rgb), 0.15);
-}
-.selected:hover {
-  background: rgba(var(--va-primary-rgb), 0.15);
-}
 .hostname-check-row {
   display: flex;
   align-items: center;
@@ -295,15 +289,28 @@ onMounted(loadAll)
   flex-direction: column;
 }
 .user-list-item {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   border-radius: 4px;
-  transition: background 0.1s;
 }
-.user-list-item:hover {
-  background: rgba(var(--va-primary-rgb), 0.07);
+.user-list-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.1s;
+  pointer-events: none;
+}
+.user-list-item:hover::before {
+  opacity: 0.06;
+}
+.user-list-item.selected::before {
+  opacity: 0.13;
 }
 .user-label {
   display: flex;
