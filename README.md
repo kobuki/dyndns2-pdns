@@ -57,10 +57,6 @@ The API lives at `/api/` within the same vhost.
     ServerName admin.ddns.example.com
     DocumentRoot /path/to/dyndns2-pdns/admin/dist
 
-    <FilesMatch ".+\.php$">
-        SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
-    </FilesMatch>
-
     <Directory "/path/to/dyndns2-pdns/admin/dist">
         AuthType Basic
         AuthName "Admin"
@@ -77,6 +73,10 @@ The API lives at `/api/` within the same vhost.
         AuthName "Admin"
         AuthUserFile /path/to/.htpasswd
         Require valid-user
+
+        <FilesMatch ".+\.php$">
+            SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
+        </FilesMatch>
     </Directory>
 </VirtualHost>
 ```

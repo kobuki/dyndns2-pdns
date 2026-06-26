@@ -4,7 +4,8 @@
 // Copy this file to config.php and fill in the values.
 
 // --- Database ---
-const DB_SOCKET   = '/run/mysqld/mysqld.sock';
+// For local socket connection, define DB_SOCKET. For TCP, omit it or comment it out.
+// const DB_SOCKET = '/run/mysqld/mysqld.sock';
 const DB_HOST     = '127.0.0.1';
 const DB_NAME     = 'dyndns';
 const DB_USERNAME = 'dyndns';

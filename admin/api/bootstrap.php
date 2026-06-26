@@ -9,9 +9,8 @@ use Illuminate\Container\Container;
 
 // Set up Eloquent capsule
 $capsule = new Capsule;
-$capsule->addConnection([
+$connection = [
     'driver'    => 'mysql',
-    'unix_socket' => DB_SOCKET,
     'host'      => DB_HOST,
     'database'  => DB_NAME,
     'username'  => DB_USERNAME,
@@ -19,7 +18,11 @@ $capsule->addConnection([
     'charset'   => 'utf8mb4',
     'collation' => 'utf8mb4_unicode_ci',
     'prefix'    => '',
-]);
+];
+if (defined('DB_SOCKET') && DB_SOCKET !== '') {
+    $connection['unix_socket'] = DB_SOCKET;
+}
+$capsule->addConnection($connection);
 $capsule->setEventDispatcher(new Dispatcher(new Container));
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
