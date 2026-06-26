@@ -17,27 +17,24 @@
       <VaCard class="user-panel">
         <VaCardTitle>Users</VaCardTitle>
         <VaCardContent>
-          <VaList>
-            <VaListItem
+          <div class="user-list">
+            <div
               v-for="user in sortedUsers"
               :key="user.id"
+              class="user-list-item"
               :class="{ 'selected': selectedUser?.id === user.id }"
               @click="selectUser(user)"
-              clickable
-              class="user-list-item"
             >
-              <VaListItemSection>
-                <VaListItemLabel class="user-label">
-                  {{ user.username }}
-                  <VaBadge
-                    :text="user.active ? 'active' : 'inactive'"
-                    :color="user.active ? 'success' : 'secondary'"
-                    class="status-badge"
-                  />
-                </VaListItemLabel>
-              </VaListItemSection>
-            </VaListItem>
-          </VaList>
+              <span class="user-label">
+                {{ user.username }}
+                <VaBadge
+                  :text="user.active ? 'active' : 'inactive'"
+                  :color="user.active ? 'success' : 'secondary'"
+                  class="status-badge"
+                />
+              </span>
+            </div>
+          </div>
         </VaCardContent>
       </VaCard>
 
@@ -274,10 +271,10 @@ onMounted(loadAll)
   overflow-y: auto;
 }
 .selected {
-  background: var(--va-primary-opacity-20, rgba(var(--va-primary-rgb), 0.15)) !important;
+  background: rgba(var(--va-primary-rgb), 0.15);
 }
 .selected:hover {
-  background: var(--va-primary-opacity-20, rgba(var(--va-primary-rgb), 0.15)) !important;
+  background: rgba(var(--va-primary-rgb), 0.15);
 }
 .hostname-check-row {
   display: flex;
@@ -293,19 +290,27 @@ onMounted(loadAll)
   font-style: italic;
   padding: 1rem 0;
 }
+.user-list {
+  display: flex;
+  flex-direction: column;
+}
 .user-list-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.1s;
 }
 .user-list-item:hover {
-  background: var(--va-primary-opacity-10, rgba(var(--va-primary-rgb), 0.07));
+  background: rgba(var(--va-primary-rgb), 0.07);
 }
 .user-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  width: 100%;
 }
 .status-badge {
   flex-shrink: 0;
