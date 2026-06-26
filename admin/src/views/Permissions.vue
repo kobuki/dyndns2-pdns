@@ -168,7 +168,6 @@ async function loadAll() {
 
 async function selectUser(user) {
   selectedUser.value = user
-  showPermittedOnly.value = false
   const res = await axios.get(`/api/permissions.php?user_id=${user.id}`)
   userPermissions.value = new Set(res.data)
 }
