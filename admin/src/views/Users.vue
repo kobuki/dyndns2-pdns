@@ -309,7 +309,7 @@ onMounted(loadUsers)
   flex: 1;
 }
 .pw-spacer {
-  height: 1.25rem;
+  height: 0.375rem;
 }
 .text-danger {
   color: var(--va-danger);
