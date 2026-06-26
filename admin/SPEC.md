@@ -191,30 +191,40 @@ GET    /admin/api/config.php                 return { base_url }
 
 ## Web server configuration
 
+The admin lives outside the DDNS `public/` document root, so both backends need
+explicit path mappings rather than relying on the document root.
+
 ### nginx
 
 ```nginx
-location /admin/ {
-    auth_basic "Admin";
-    auth_basic_user_file /path/to/.htpasswd;
-    try_files $uri $uri/ /admin/dist/index.html;
-}
-
 location /admin/api/ {
     auth_basic "Admin";
     auth_basic_user_file /path/to/.htpasswd;
 
+    alias /path/to/dyndns2-pdns/admin/api/;
+
     location ~ \.php$ {
         fastcgi_pass unix:/run/php/php-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME /path/to/dyndns2-pdns/admin/api/$fastcgi_script_name;
         include fastcgi_params;
     }
+}
+
+location /admin/dist/ {
+    auth_basic "Admin";
+    auth_basic_user_file /path/to/.htpasswd;
+
+    alias /path/to/dyndns2-pdns/admin/dist/;
+    try_files $uri /admin/dist/index.html;
 }
 ```
 
 ### Apache
 
 ```apache
+Alias /admin/dist/ /path/to/dyndns2-pdns/admin/dist/
+Alias /admin/api/  /path/to/dyndns2-pdns/admin/api/
+
 <Directory "/path/to/dyndns2-pdns/admin/dist">
     AuthType Basic
     AuthName "Admin"

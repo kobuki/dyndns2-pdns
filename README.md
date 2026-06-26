@@ -43,6 +43,25 @@ Only the essentials are shown. DynDNS2 clients typically call `/nic/update` — 
 
     RewriteEngine On
     RewriteRule ^(/nic)?/update(\.php)?$ /update.php [L]
+
+    # Admin UI — Alias needed because admin/ is outside the document root
+    Alias /admin/dist/ /path/to/dyndns2-pdns/admin/dist/
+    Alias /admin/api/  /path/to/dyndns2-pdns/admin/api/
+
+    <Directory "/path/to/dyndns2-pdns/admin/dist">
+        AuthType Basic
+        AuthName "Admin"
+        AuthUserFile /path/to/.htpasswd
+        Require valid-user
+        FallbackResource /admin/dist/index.html
+    </Directory>
+
+    <Directory "/path/to/dyndns2-pdns/admin/api">
+        AuthType Basic
+        AuthName "Admin"
+        AuthUserFile /path/to/.htpasswd
+        Require valid-user
+    </Directory>
 </VirtualHost>
 ```
 
@@ -60,6 +79,26 @@ server {
     }
 
     rewrite ^(/nic)?/update(\.php)?$ /update.php last;
+
+    # Admin UI — alias needed because admin/ is outside the document root
+    location /admin/api/ {
+        alias /path/to/dyndns2-pdns/admin/api/;
+        auth_basic "Admin";
+        auth_basic_user_file /path/to/.htpasswd;
+
+        location ~ \.php$ {
+            fastcgi_pass unix:/run/php/php-fpm.sock;
+            fastcgi_param SCRIPT_FILENAME /path/to/dyndns2-pdns/admin/api/$fastcgi_script_name;
+            include fastcgi_params;
+        }
+    }
+
+    location /admin/dist/ {
+        alias /path/to/dyndns2-pdns/admin/dist/;
+        auth_basic "Admin";
+        auth_basic_user_file /path/to/.htpasswd;
+        try_files $uri /admin/dist/index.html;
+    }
 }
 ```
 
