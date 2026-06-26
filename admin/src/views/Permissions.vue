@@ -19,7 +19,7 @@
         <VaCardContent>
           <VaList>
             <VaListItem
-              v-for="user in users"
+              v-for="user in sortedUsers"
               :key="user.id"
               :class="{ 'selected': selectedUser?.id === user.id }"
               @click="selectUser(user)"
@@ -119,6 +119,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 const users = ref([])
+const sortedUsers = computed(() =>
+  [...users.value].sort((a, b) => a.username.localeCompare(b.username))
+)
 const hostnames = ref([])
 const selectedUser = ref(null)
 const userPermissions = ref(new Set())
@@ -262,11 +265,14 @@ onMounted(loadAll)
 }
 .user-list-item {
   cursor: pointer;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 .user-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 .status-badge {
   flex-shrink: 0;
