@@ -1,0 +1,16 @@
+{
+    "name": "dyndns2-pdns/admin",
+    "description": "Admin UI backend for dyndns2-pdns",
+    "require": {
+        "illuminate/database": "^11.0",
+        "illuminate/events": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Admin\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

@@ -1,0 +1,284 @@
+<template>
+  <div>
+    <h2 class="va-h2 mb-4">Users</h2>
+
+    <VaCard>
+      <VaCardContent>
+        <div class="toolbar mb-4">
+          <VaInput
+            v-model="search"
+            placeholder="Search users..."
+            clearable
+            class="search-input"
+          >
+            <template #prependInner>
+              <VaIcon name="search" />
+            </template>
+          </VaInput>
+          <VaButton icon="add" @click="openAddModal">Add User</VaButton>
+        </div>
+
+        <VaDataTable
+          :items="filteredUsers"
+          :columns="columns"
+          :loading="loading"
+          striped
+        >
+          <template #cell(active)="{ row }">
+            <VaSwitch
+              :model-value="!!row.rowData.active"
+              @update:model-value="toggleActive(row.rowData)"
+              size="small"
+            />
+          </template>
+          <template #cell(actions)="{ row }">
+            <VaButton
+              icon="edit"
+              preset="plain"
+              size="small"
+              @click="openEditModal(row.rowData)"
+            />
+            <VaButton
+              icon="delete"
+              preset="plain"
+              size="small"
+              color="danger"
+              @click="confirmDelete(row.rowData)"
+            />
+          </template>
+        </VaDataTable>
+      </VaCardContent>
+    </VaCard>
+
+    <!-- Add/Edit Modal -->
+    <VaModal
+      v-model="showModal"
+      :title="editingUser ? 'Edit User' : 'Add User'"
+      @ok="saveUser"
+      @cancel="closeModal"
+      ok-text="Save"
+    >
+      <div class="modal-form">
+        <VaInput
+          v-model="form.username"
+          label="Username"
+          class="mb-4"
+          :error="!!errors.username"
+          :error-messages="errors.username"
+        />
+        <div class="password-row mb-4">
+          <VaInput
+            v-model="form.password"
+            :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
+            :type="showPassword ? 'text' : 'password'"
+            class="password-input"
+            :error="!!errors.password"
+            :error-messages="errors.password"
+          >
+            <template #appendInner>
+              <VaButton
+                :icon="showPassword ? 'visibility_off' : 'visibility'"
+                preset="plain"
+                size="small"
+                @click="showPassword = !showPassword"
+              />
+            </template>
+          </VaInput>
+          <VaButton
+            preset="secondary"
+            size="small"
+            @click="generatePassword"
+            class="ml-2"
+          >Generate</VaButton>
+        </div>
+        <VaSwitch v-model="form.active" label="Active" />
+      </div>
+    </VaModal>
+
+    <!-- Delete Confirmation Modal -->
+    <VaModal
+      v-model="showDeleteModal"
+      title="Delete User"
+      ok-text="Delete"
+      ok-color="danger"
+      @ok="doDelete"
+      @cancel="showDeleteModal = false"
+    >
+      <p v-if="deleteTarget">
+        Delete user <strong>{{ deleteTarget.username }}</strong>?
+        <span v-if="deleteBlockedCount > 0" class="text-danger">
+          Cannot delete: this user has {{ deleteBlockedCount }} permission(s).
+          Remove permissions first.
+        </span>
+      </p>
+    </VaModal>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import { generateSecurePassword } from '../utils/password.js'
+
+const loading = ref(false)
+const users = ref([])
+const search = ref('')
+const showModal = ref(false)
+const showDeleteModal = ref(false)
+const editingUser = ref(null)
+const deleteTarget = ref(null)
+const deleteBlockedCount = ref(0)
+const showPassword = ref(false)
+const errors = ref({})
+
+const form = ref({ username: '', password: '', active: true })
+
+const columns = [
+  { key: 'id', label: 'ID', sortable: true },
+  { key: 'username', label: 'Username', sortable: true },
+  { key: 'active', label: 'Active' },
+  { key: 'actions', label: 'Actions', width: 100 },
+]
+
+const filteredUsers = computed(() => {
+  if (!search.value) return users.value
+  const q = search.value.toLowerCase()
+  return users.value.filter(u => u.username.toLowerCase().includes(q))
+})
+
+async function loadUsers() {
+  loading.value = true
+  try {
+    const res = await axios.get('/admin/api/users.php')
+    users.value = res.data
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+}
+
+function openAddModal() {
+  editingUser.value = null
+  form.value = { username: '', password: '', active: true }
+  errors.value = {}
+  showPassword.value = false
+  showModal.value = true
+}
+
+function openEditModal(user) {
+  editingUser.value = user
+  form.value = { username: user.username, password: '', active: !!user.active }
+  errors.value = {}
+  showPassword.value = false
+  showModal.value = true
+}
+
+function closeModal() {
+  showModal.value = false
+  editingUser.value = null
+}
+
+function generatePassword() {
+  form.value.password = generateSecurePassword(20)
+  showPassword.value = true
+}
+
+async function saveUser() {
+  errors.value = {}
+  if (!form.value.username) {
+    errors.value.username = 'Username is required'
+    return false
+  }
+  if (!editingUser.value && !form.value.password) {
+    errors.value.password = 'Password is required'
+    return false
+  }
+
+  try {
+    const payload = {
+      username: form.value.username,
+      active: form.value.active ? 1 : 0,
+    }
+    if (form.value.password) payload.password = form.value.password
+
+    if (editingUser.value) {
+      await axios.put(`/admin/api/users.php?id=${editingUser.value.id}`, payload)
+    } else {
+      await axios.post('/admin/api/users.php', payload)
+    }
+    await loadUsers()
+    closeModal()
+  } catch (e) {
+    const msg = e.response?.data?.error || 'An error occurred'
+    errors.value.username = msg
+    return false
+  }
+}
+
+async function toggleActive(user) {
+  try {
+    await axios.put(`/admin/api/users.php?id=${user.id}`, {
+      username: user.username,
+      active: user.active ? 0 : 1,
+    })
+    await loadUsers()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+async function confirmDelete(user) {
+  deleteTarget.value = user
+  deleteBlockedCount.value = 0
+  try {
+    const res = await axios.get(`/admin/api/permissions.php?user_id=${user.id}`)
+    deleteBlockedCount.value = res.data?.length || 0
+  } catch (e) {}
+  showDeleteModal.value = true
+}
+
+async function doDelete() {
+  if (deleteBlockedCount.value > 0) {
+    showDeleteModal.value = false
+    return
+  }
+  try {
+    await axios.delete(`/admin/api/users.php?id=${deleteTarget.value.id}`)
+    await loadUsers()
+  } catch (e) {
+    console.error(e)
+  }
+  showDeleteModal.value = false
+}
+
+onMounted(loadUsers)
+</script>
+
+<style scoped>
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.search-input {
+  flex: 1;
+  max-width: 300px;
+}
+.modal-form {
+  min-width: 320px;
+}
+.password-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.password-input {
+  flex: 1;
+}
+.text-danger {
+  color: var(--va-danger);
+  display: block;
+  margin-top: 0.5rem;
+}
+</style>
