@@ -2,16 +2,14 @@
   <div>
     <h2 class="va-h2 mb-4">Dashboard</h2>
 
-    <VaRow class="mb-6">
-      <VaColumn :xs="12" :sm="6" :lg="3" v-for="card in cards" :key="card.title">
-        <VaCard class="summary-card">
-          <VaCardContent>
-            <div class="card-label">{{ card.title }}</div>
-            <div class="card-value">{{ card.value }}</div>
-          </VaCardContent>
-        </VaCard>
-      </VaColumn>
-    </VaRow>
+    <div class="summary-row mb-4">
+      <VaCard v-for="card in cards" :key="card.title" class="summary-card">
+        <VaCardContent>
+          <div class="card-label">{{ card.title }}</div>
+          <div class="card-value">{{ card.value }}</div>
+        </VaCardContent>
+      </VaCard>
+    </div>
 
     <VaCard>
       <VaCardTitle>Recent Activity (last 20 entries)</VaCardTitle>
@@ -89,18 +87,23 @@ onMounted(loadData)
 </script>
 
 <style scoped>
+.summary-row {
+  display: flex;
+  gap: 0.75rem;
+}
 .summary-card {
-  margin-bottom: 1rem;
+  flex: 1;
 }
 .card-label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   opacity: 0.65;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 .card-value {
-  font-size: 2rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 </style>
