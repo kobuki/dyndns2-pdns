@@ -61,7 +61,7 @@
         <VaInput
           v-model="form.hostname"
           label="Hostname (must end with .)"
-          class="mb-4"
+          class="mb-4 hostname-input"
           @blur="onHostnameBlur"
           :error="!!errors.hostname"
           :error-messages="errors.hostname"
@@ -293,9 +293,11 @@ onMounted(loadHostnames)
   align-items: flex-end;
   gap: 0.5rem;
 }
-.domain-input {
+.hostname-input {
   width: 475px;
-  flex-shrink: 0;
+}
+.domain-input {
+  flex: 1;
 }
 .guess-badge {
   margin-bottom: 0.25rem;
