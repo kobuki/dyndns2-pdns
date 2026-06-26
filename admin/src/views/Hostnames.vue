@@ -286,7 +286,7 @@ onMounted(loadHostnames)
   max-width: 300px;
 }
 .modal-form {
-  min-width: 360px;
+  width: 270px;
 }
 .domain-row {
   display: flex;
@@ -294,7 +294,8 @@ onMounted(loadHostnames)
   gap: 0.5rem;
 }
 .domain-input {
-  flex: 1;
+  width: 190px;
+  flex-shrink: 0;
 }
 .guess-badge {
   margin-bottom: 0.25rem;

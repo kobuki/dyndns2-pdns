@@ -72,31 +72,28 @@
           :error="!!errors.username"
           :error-messages="errors.username"
         />
-        <div class="password-row mb-4">
-          <VaInput
-            v-model="form.password"
-            :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
-            :type="showPassword ? 'text' : 'password'"
-            class="password-input"
-            :error="!!errors.password"
-            :error-messages="errors.password"
-          >
-            <template #appendInner>
-              <VaButton
-                :icon="showPassword ? 'visibility_off' : 'visibility'"
-                preset="plain"
-                size="small"
-                @click="showPassword = !showPassword"
-              />
-            </template>
-          </VaInput>
-          <VaButton
-            preset="secondary"
-            size="small"
-            @click="generatePassword"
-            class="ml-2"
-          >Generate</VaButton>
-        </div>
+        <VaInput
+          v-model="form.password"
+          :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
+          :type="showPassword ? 'text' : 'password'"
+          class="mb-4"
+          :error="!!errors.password"
+          :error-messages="errors.password"
+        >
+          <template #appendInner>
+            <VaButton
+              preset="plain"
+              size="small"
+              @click="generatePassword"
+            >Gen</VaButton>
+            <VaButton
+              :icon="showPassword ? 'visibility_off' : 'visibility'"
+              preset="plain"
+              size="small"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </VaInput>
         <VaSwitch v-model="form.active" label="Active" />
       </div>
     </VaModal>
@@ -278,14 +275,6 @@ onMounted(loadUsers)
 }
 .modal-form {
   min-width: 320px;
-}
-.password-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-.password-input {
-  flex: 1;
 }
 .text-danger {
   color: var(--va-danger);
