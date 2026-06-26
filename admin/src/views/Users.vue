@@ -272,7 +272,7 @@ onMounted(loadUsers)
   max-width: 300px;
 }
 .modal-form {
-  min-width: 320px;
+  width: 415px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
