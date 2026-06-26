@@ -71,27 +71,30 @@
           :error="!!errors.username"
           :error-messages="errors.username"
         />
-        <VaInput
-          v-model="form.password"
-          :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
-          :type="showPassword ? 'text' : 'password'"
-          :error="!!errors.password"
-          :error-messages="errors.password"
-        >
-          <template #appendInner>
-            <VaButton
-              preset="plain"
-              size="small"
-              @click="generatePassword"
-            >Gen</VaButton>
-            <VaButton
-              :icon="showPassword ? 'visibility_off' : 'visibility'"
-              preset="plain"
-              size="small"
-              @click="showPassword = !showPassword"
-            />
-          </template>
-        </VaInput>
+        <div class="password-row">
+          <VaInput
+            v-model="form.password"
+            :label="editingUser ? 'Password (leave blank to keep)' : 'Password'"
+            :type="showPassword ? 'text' : 'password'"
+            class="password-input"
+            :error="!!errors.password"
+            :error-messages="errors.password"
+          >
+            <template #appendInner>
+              <VaButton
+                :icon="showPassword ? 'visibility_off' : 'visibility'"
+                preset="plain"
+                size="small"
+                @click="showPassword = !showPassword"
+              />
+            </template>
+          </VaInput>
+          <VaButton
+            preset="secondary"
+            size="small"
+            @click="generatePassword"
+          >Generate</VaButton>
+        </div>
         <VaSwitch v-model="form.active" label="Active" />
       </div>
     </VaModal>
@@ -276,6 +279,14 @@ onMounted(loadUsers)
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+.password-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.password-input {
+  flex: 1;
 }
 .text-danger {
   color: var(--va-danger);
