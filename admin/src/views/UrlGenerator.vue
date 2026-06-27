@@ -113,6 +113,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { generateSecurePassword } from '../utils/password.js'
 
 const users = ref([])
 const allHostnames = ref([])
@@ -128,13 +129,8 @@ const saving = ref(false)
 const errorMsg = ref('')
 const token = ref('')
 
-const CHARSET_ALNUM = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-
 function generatePassword() {
-  const arr = new Uint32Array(20)
-  crypto.getRandomValues(arr)
-  password.value = Array.from(arr, n => CHARSET_ALNUM[n % CHARSET_ALNUM.length]).join('')
-  showPassword.value = true
+  password.value = generateSecurePassword(20)
 }
 
 const activeUsers = computed(() => users.value.filter(u => u.active))

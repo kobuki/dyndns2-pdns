@@ -207,7 +207,6 @@ function closeModal() {
 
 function generatePassword() {
   form.value.password = generateSecurePassword(20)
-  showPassword.value = true
 }
 
 async function saveUser() {
