@@ -47,7 +47,7 @@
                 @click="confirmDelete(row.rowData)"
               />
               <VaButton
-                icon="key"
+                icon="manage_accounts"
                 preset="plain"
                 @click="goToPermissions(row.rowData)"
               />
