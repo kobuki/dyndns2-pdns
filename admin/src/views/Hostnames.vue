@@ -145,7 +145,7 @@ const columns = [
   { key: 'domain', label: 'Domain', sortable: true },
   { key: 'last_updated', label: 'Last Updated', sortable: true },
   { key: 'last_client_ip', label: 'Last Client IP' },
-  { key: 'actions', label: 'Actions', width: 100 },
+  { key: 'actions', label: 'Actions', width: 100, align: 'center', alignHead: 'center' },
 ]
 
 const filteredHostnames = computed(() => {

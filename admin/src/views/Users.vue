@@ -161,7 +161,7 @@ const columns = [
   { key: 'id', label: 'ID', sortable: true },
   { key: 'username', label: 'Username', sortable: true },
   { key: 'active', label: 'Active' },
-  { key: 'actions', label: 'Actions', width: 100 },
+  { key: 'actions', label: 'Actions', width: 100, align: 'center', alignHead: 'center' },
 ]
 
 const filteredUsers = computed(() => {
