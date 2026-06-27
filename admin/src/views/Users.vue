@@ -161,7 +161,7 @@ const columns = [
   { key: 'id', label: 'ID', sortable: true },
   { key: 'username', label: 'Username', sortable: true },
   { key: 'active', label: 'Active' },
-  { key: 'actions', label: 'Actions', width: 100, align: 'center', alignHead: 'center' },
+  { key: 'actions', label: 'Actions', width: 120, alignHead: 'center', tdClass: 'actions-td' },
 ]
 
 const filteredUsers = computed(() => {
@@ -333,6 +333,9 @@ onMounted(loadUsers)
 .pagination-row {
   display: flex;
   justify-content: center;
+}
+:deep(.actions-td) {
+  text-align: center;
 }
 .action-buttons {
   display: inline-flex;

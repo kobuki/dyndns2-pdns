@@ -145,7 +145,7 @@ const columns = [
   { key: 'domain', label: 'Domain', sortable: true },
   { key: 'last_updated', label: 'Last Updated', sortable: true },
   { key: 'last_client_ip', label: 'Last Client IP' },
-  { key: 'actions', label: 'Actions', width: 100, align: 'center', alignHead: 'center' },
+  { key: 'actions', label: 'Actions', width: 100, alignHead: 'center', tdClass: 'actions-td' },
 ]
 
 const filteredHostnames = computed(() => {
@@ -311,6 +311,9 @@ onMounted(loadHostnames)
 .pagination-row {
   display: flex;
   justify-content: center;
+}
+:deep(.actions-td) {
+  text-align: center;
 }
 .action-buttons {
   display: inline-flex;
