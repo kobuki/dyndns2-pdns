@@ -313,9 +313,8 @@ onMounted(loadHostnames)
   justify-content: center;
 }
 .action-buttons {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.4rem;
 }
 </style>
