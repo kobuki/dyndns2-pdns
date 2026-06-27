@@ -315,6 +315,7 @@ onMounted(loadHostnames)
 .action-buttons {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
 }
 </style>
