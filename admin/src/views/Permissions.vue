@@ -134,7 +134,10 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
+
+const route = useRoute()
 
 const users = ref([])
 const sortedUsers = computed(() =>
@@ -254,7 +257,17 @@ watch(matrixView, async (val) => {
   }
 })
 
-onMounted(loadAll)
+onMounted(async () => {
+  await loadAll()
+  const uid = route.query.user_id ? parseInt(route.query.user_id) : null
+  if (uid) {
+    const user = users.value.find(u => u.id === uid)
+    if (user) {
+      await selectUser(user)
+      showPermittedOnly.value = true
+    }
+  }
+})
 </script>
 
 <style scoped>

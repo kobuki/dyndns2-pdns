@@ -46,6 +46,11 @@
                 color="danger"
                 @click="confirmDelete(row.rowData)"
               />
+              <VaButton
+                icon="key"
+                preset="plain"
+                @click="goToPermissions(row.rowData)"
+              />
             </div>
           </template>
         </VaDataTable>
@@ -122,6 +127,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goToPermissions(user) {
+  router.push({ path: '/permissions', query: { user_id: user.id } })
+}
 
 function copyPassword() {
   navigator.clipboard.writeText(form.value.password).catch(() => {})
