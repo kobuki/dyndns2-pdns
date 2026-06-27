@@ -27,7 +27,7 @@
           striped
         >
           <template #cell(actions)="{ row }">
-            <span style="display:inline-flex;align-items:center;gap:0.4rem;">
+            <div class="action-buttons">
               <VaButton
                 icon="edit"
                 preset="plain"
@@ -39,7 +39,7 @@
                 color="danger"
                 @click="confirmDelete(row.rowData)"
               />
-            </span>
+            </div>
           </template>
         </VaDataTable>
 
@@ -311,5 +311,11 @@ onMounted(loadHostnames)
 .pagination-row {
   display: flex;
   justify-content: center;
+}
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
 }
 </style>

@@ -34,7 +34,7 @@
             />
           </template>
           <template #cell(actions)="{ row }">
-            <span style="display:inline-flex;align-items:center;gap:0.4rem;">
+            <div class="action-buttons">
               <VaButton
                 icon="edit"
                 preset="plain"
@@ -51,7 +51,7 @@
                 preset="plain"
                 @click="goToPermissions(row.rowData)"
               />
-            </span>
+            </div>
           </template>
         </VaDataTable>
 
@@ -333,5 +333,11 @@ onMounted(loadUsers)
 .pagination-row {
   display: flex;
   justify-content: center;
+}
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
 }
 </style>
