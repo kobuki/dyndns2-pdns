@@ -34,7 +34,7 @@
             />
           </template>
           <template #cell(actions)="{ row }">
-            <div class="action-buttons">
+            <span style="display:inline-flex;align-items:center;gap:0.4rem;">
               <VaButton
                 icon="edit"
                 preset="plain"
@@ -51,7 +51,7 @@
                 preset="plain"
                 @click="goToPermissions(row.rowData)"
               />
-            </div>
+            </span>
           </template>
         </VaDataTable>
 
@@ -161,7 +161,7 @@ const columns = [
   { key: 'id', label: 'ID', sortable: true },
   { key: 'username', label: 'Username', sortable: true },
   { key: 'active', label: 'Active' },
-  { key: 'actions', label: 'Actions', width: 120, alignHead: 'center' },
+  { key: 'actions', label: 'Actions', width: 120, align: 'center', alignHead: 'center' },
 ]
 
 const filteredUsers = computed(() => {

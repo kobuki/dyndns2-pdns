@@ -27,7 +27,7 @@
           striped
         >
           <template #cell(actions)="{ row }">
-            <div class="action-buttons">
+            <span style="display:inline-flex;align-items:center;gap:0.4rem;">
               <VaButton
                 icon="edit"
                 preset="plain"
@@ -39,7 +39,7 @@
                 color="danger"
                 @click="confirmDelete(row.rowData)"
               />
-            </div>
+            </span>
           </template>
         </VaDataTable>
 
@@ -145,7 +145,7 @@ const columns = [
   { key: 'domain', label: 'Domain', sortable: true },
   { key: 'last_updated', label: 'Last Updated', sortable: true },
   { key: 'last_client_ip', label: 'Last Client IP' },
-  { key: 'actions', label: 'Actions', width: 100, alignHead: 'center' },
+  { key: 'actions', label: 'Actions', width: 100, align: 'center', alignHead: 'center' },
 ]
 
 const filteredHostnames = computed(() => {
