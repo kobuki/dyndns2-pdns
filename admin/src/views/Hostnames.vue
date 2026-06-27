@@ -145,7 +145,7 @@ const columns = [
   { key: 'domain', label: 'Domain', sortable: true },
   { key: 'last_updated', label: 'Last Updated', sortable: true },
   { key: 'last_client_ip', label: 'Last Client IP' },
-  { key: 'actions', label: 'Actions', width: 100, alignHead: 'center', tdClass: 'actions-td' },
+  { key: 'actions', label: 'Actions', width: 100, alignHead: 'center' },
 ]
 
 const filteredHostnames = computed(() => {
@@ -312,12 +312,11 @@ onMounted(loadHostnames)
   display: flex;
   justify-content: center;
 }
-:deep(.actions-td) {
-  text-align: center;
-}
 .action-buttons {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.4rem;
+  width: fit-content;
+  margin: 0 auto;
 }
 </style>

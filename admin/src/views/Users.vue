@@ -161,7 +161,7 @@ const columns = [
   { key: 'id', label: 'ID', sortable: true },
   { key: 'username', label: 'Username', sortable: true },
   { key: 'active', label: 'Active' },
-  { key: 'actions', label: 'Actions', width: 120, alignHead: 'center', tdClass: 'actions-td' },
+  { key: 'actions', label: 'Actions', width: 120, alignHead: 'center' },
 ]
 
 const filteredUsers = computed(() => {
@@ -334,12 +334,11 @@ onMounted(loadUsers)
   display: flex;
   justify-content: center;
 }
-:deep(.actions-td) {
-  text-align: center;
-}
 .action-buttons {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.4rem;
+  width: fit-content;
+  margin: 0 auto;
 }
 </style>
