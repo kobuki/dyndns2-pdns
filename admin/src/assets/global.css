@@ -2,3 +2,13 @@
   font-size: 1.25rem !important;
   font-weight: 600 !important;
 }
+
+.actions-td {
+  text-align: center;
+}
+
+.action-buttons {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.4rem;
+}

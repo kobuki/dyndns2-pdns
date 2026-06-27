@@ -312,11 +312,4 @@ onMounted(loadHostnames)
   display: flex;
   justify-content: center;
 }
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: fit-content;
-  margin: 0 auto;
-}
 </style>
