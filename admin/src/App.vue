@@ -52,6 +52,11 @@
             {{ stats.users }} users &middot; {{ stats.hostnames }} hostnames
             <template v-if="stats.lastUpdate"> &middot; last update: {{ stats.lastUpdate }}</template>
           </span>
+          <VaButton
+            :icon="isDark ? 'light_mode' : 'dark_mode'"
+            preset="plain"
+            @click="toggleDark"
+          />
         </template>
       </VaNavbar>
     </template>
@@ -66,10 +71,23 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useColors } from 'vuestic-ui'
 import axios from 'axios'
+
+const { applyPreset, currentPresetName } = useColors()
 
 const sidebarVisible = ref(true)
 const stats = ref(null)
+const isDark = ref(localStorage.getItem('colorScheme') === 'dark')
+
+function toggleDark() {
+  isDark.value = !isDark.value
+  const preset = isDark.value ? 'dark' : 'default'
+  applyPreset(preset)
+  localStorage.setItem('colorScheme', preset)
+}
+
+if (isDark.value) applyPreset('dark')
 
 async function loadStats() {
   try {
