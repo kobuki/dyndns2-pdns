@@ -144,8 +144,8 @@ const sortedUsers = computed(() =>
   [...users.value].sort((a, b) => a.username.localeCompare(b.username))
 )
 const hostnames = ref([])
-const hostnameSearch = ref('')
-const showPermittedOnly = ref(false)
+const hostnameSearch = ref(sessionStorage.getItem('perm.search') || '')
+const showPermittedOnly = ref(sessionStorage.getItem('perm.permittedOnly') === 'true')
 const filteredHostnames = computed(() => {
   let list = hostnames.value
   if (showPermittedOnly.value) list = list.filter(h => userPermissions.value.has(h.id))
@@ -167,12 +167,6 @@ async function loadAll() {
   ])
   users.value = uRes.data
   hostnames.value = hRes.data
-}
-
-async function selectUser(user) {
-  selectedUser.value = user
-  const res = await axios.get(`/api/permissions.php?user_id=${user.id}`)
-  userPermissions.value = new Set(res.data)
 }
 
 async function togglePermission(hostname, checked) {
@@ -251,10 +245,11 @@ async function toggleMatrixPermission(user, hostname, checked) {
   }
 }
 
+watch(hostnameSearch, val => sessionStorage.setItem('perm.search', val))
+watch(showPermittedOnly, val => sessionStorage.setItem('perm.permittedOnly', val))
+
 watch(matrixView, async (val) => {
-  if (val) {
-    await loadMatrixPermissions()
-  }
+  if (val) await loadMatrixPermissions()
 })
 
 onMounted(async () => {
@@ -265,9 +260,22 @@ onMounted(async () => {
     if (user) {
       await selectUser(user)
       showPermittedOnly.value = true
+      return
     }
   }
+  const savedId = sessionStorage.getItem('perm.userId')
+  if (savedId) {
+    const user = users.value.find(u => u.id === parseInt(savedId))
+    if (user) await selectUser(user)
+  }
 })
+
+async function selectUser(user) {
+  selectedUser.value = user
+  sessionStorage.setItem('perm.userId', user.id)
+  const res = await axios.get(`/api/permissions.php?user_id=${user.id}`)
+  userPermissions.value = new Set(res.data)
+}
 </script>
 
 <style scoped>
