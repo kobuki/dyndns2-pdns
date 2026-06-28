@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useColors } from 'vuestic-ui'
 import axios from 'axios'
 
@@ -80,9 +80,11 @@ const sidebarVisible = ref(true)
 const stats = ref(null)
 const isDark = ref(localStorage.getItem('colorScheme') === 'dark')
 
-function toggleDark() {
+async function toggleDark() {
   isDark.value = !isDark.value
   const preset = isDark.value ? 'dark' : 'default'
+  applyPreset(preset)
+  await nextTick()
   applyPreset(preset)
   localStorage.setItem('colorScheme', preset)
 }
