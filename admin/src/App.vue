@@ -1,5 +1,5 @@
 <template>
-  <VaLayout>
+  <VaLayout :key="isDark ? 'dark' : 'light'">
     <template #left>
       <VaSidebar v-model="sidebarVisible" class="sidebar">
         <VaSidebarItem to="/dashboard" :active="$route.path === '/dashboard'">
@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useColors } from 'vuestic-ui'
 import axios from 'axios'
 
@@ -80,11 +80,9 @@ const sidebarVisible = ref(true)
 const stats = ref(null)
 const isDark = ref(localStorage.getItem('colorScheme') === 'dark')
 
-async function toggleDark() {
+function toggleDark() {
   isDark.value = !isDark.value
   const preset = isDark.value ? 'dark' : 'default'
-  applyPreset(preset)
-  await nextTick()
   applyPreset(preset)
   localStorage.setItem('colorScheme', preset)
 }
