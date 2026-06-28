@@ -4,5 +4,5 @@
 }
 
 * {
-  transition: none !important;
+  transition-property: opacity, transform !important;
 }
