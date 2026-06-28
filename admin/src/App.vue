@@ -81,10 +81,14 @@ const stats = ref(null)
 const isDark = ref(localStorage.getItem('colorScheme') === 'dark')
 
 function toggleDark() {
+  const style = document.createElement('style')
+  style.textContent = '* { transition: none !important; }'
+  document.head.appendChild(style)
   isDark.value = !isDark.value
   const preset = isDark.value ? 'dark' : 'light'
   applyPreset(preset)
   localStorage.setItem('colorScheme', preset)
+  requestAnimationFrame(() => document.head.removeChild(style))
 }
 
 if (isDark.value) applyPreset('dark')
