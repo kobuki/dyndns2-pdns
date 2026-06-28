@@ -19,7 +19,14 @@
           :columns="columns"
           :loading="loading"
           striped
-        />
+        >
+          <template #cell(operation)="{ row }">
+            <VaBadge
+              :text="row.rowData.operation"
+              :color="opColor(row.rowData.operation)"
+            />
+          </template>
+        </VaDataTable>
       </VaCardContent>
     </VaCard>
   </div>
@@ -52,6 +59,13 @@ const cards = computed(() => [
   { title: 'Permissions', value: permissions.value },
   { title: 'Changelog (24h)', value: last24hCount.value },
 ])
+
+function opColor(op) {
+  if (op === 'set') return 'primary'
+  if (op === 'add') return 'success'
+  if (op === 'delete') return 'danger'
+  return 'secondary'
+}
 
 async function loadData() {
   loading.value = true
