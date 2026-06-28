@@ -89,7 +89,7 @@ async function toggleDark() {
   applyPreset(preset)
   localStorage.setItem('colorScheme', preset)
   await nextTick()
-  requestAnimationFrame(() => document.head.removeChild(style))
+  setTimeout(() => document.head.removeChild(style), 150)
 }
 
 if (isDark.value) applyPreset('dark')
