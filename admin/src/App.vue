@@ -1,5 +1,5 @@
 <template>
-  <VaLayout :key="isDark ? 'dark' : 'light'">
+  <VaLayout>
     <template #left>
       <VaSidebar v-model="sidebarVisible" class="sidebar">
         <VaSidebarItem to="/dashboard" :active="$route.path === '/dashboard'">
@@ -82,7 +82,7 @@ const isDark = ref(localStorage.getItem('colorScheme') === 'dark')
 
 function toggleDark() {
   isDark.value = !isDark.value
-  const preset = isDark.value ? 'dark' : 'default'
+  const preset = isDark.value ? 'dark' : 'light'
   applyPreset(preset)
   localStorage.setItem('colorScheme', preset)
 }
