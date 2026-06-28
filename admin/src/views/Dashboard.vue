@@ -57,7 +57,7 @@ async function loadData() {
   loading.value = true
   try {
     const now = new Date()
-    const from = new Date(now - 24 * 3600 * 1000).toISOString().substring(0, 10)
+    const from = new Date(now - 24 * 3600 * 1000).toISOString().replace('T', ' ').substring(0, 19)
 
     const [uRes, hRes, clRes, cl24Res] = await Promise.all([
       axios.get('/api/users.php'),
