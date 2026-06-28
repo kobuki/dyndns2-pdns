@@ -63,11 +63,7 @@
 
     <template #content>
       <div class="content-area">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+        <router-view />
       </div>
     </template>
   </VaLayout>
@@ -131,13 +127,5 @@ onMounted(loadStats)
 .content-area {
   padding: 1.5rem;
   min-height: calc(100vh - 56px);
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
