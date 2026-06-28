@@ -20,7 +20,8 @@ CREATE TABLE `hostnames` (
   `hostname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `domain` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `last_updated` datetime NULL DEFAULT NULL,
-  `last_client_ip` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
+  `last_ipv4` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_ipv6` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `permissions` (

@@ -80,7 +80,7 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
 class Hostname extends \Illuminate\Database\Eloquent\Model {
     protected $table = 'hostnames';
-    protected $fillable = ['hostname', 'domain', 'last_updated', 'last_client_ip'];
+    protected $fillable = ['hostname', 'domain', 'last_updated', 'last_ipv4', 'last_ipv6'];
     public $timestamps = false;
 
     public function permissions() {

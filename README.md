@@ -295,7 +295,7 @@ Every successful update writes a row to the `changelog` table:
 | `record_type` | `A`, `AAAA`, or `TXT` |
 | `record_content` | The value written (empty string for deletions) |
 
-The `hostnames` table also tracks `last_updated` (timestamp of the last successful update) and `last_client_ip` (the client IP that performed it).
+The `hostnames` table also tracks `last_updated` (timestamp of the last successful update), `last_ipv4`, and `last_ipv6` (the last values written to DNS). These are used to detect no-change conditions and avoid redundant DNS API calls.
 
 Client IP is detected from `X-Real-IP` or `X-Forwarded-For` (first token) when behind a reverse proxy, falling back to `REMOTE_ADDR`.
 

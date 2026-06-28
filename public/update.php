@@ -146,8 +146,24 @@ $ipv4 = isset($ipv4) ? $ipv4 : false;
 $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
 
+if ($txt === false && ($ipv4 !== false || $ipv6 !== false)) {
+    $last_ips = get_last_ips($db, $hostnames);
+    $changed = array_filter($hostnames, function($info, $hostname) use ($last_ips, $ipv4, $ipv6) {
+        $last = $last_ips[$hostname] ?? ['ipv4' => null, 'ipv6' => null];
+        if ($ipv4 !== false && $ipv4 !== $last['ipv4']) return true;
+        if ($ipv6 !== false && $ipv6 !== $last['ipv6']) return true;
+        return false;
+    }, ARRAY_FILTER_USE_BOTH);
+    if (empty($changed)) {
+        $db = null;
+        echo 'nochg';
+        exit;
+    }
+    $hostnames = $changed;
+}
+
 update_dns($hostnames, $ipv4, $ipv6, $txt);
-update_last_updated($db, $hostnames, $client_ip);
+update_last_updated($db, $hostnames, $ipv4, $ipv6);
 log_changelog($db, $user, $hostnames, $ipv4, $ipv6, $txt, $client_ip);
 $db = null;
 

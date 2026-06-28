@@ -46,10 +46,9 @@ switch ($method) {
             json_err(409, 'Hostname already exists');
         }
         $hostname = Hostname::create([
-            'hostname'       => $body['hostname'],
-            'domain'         => $body['domain'],
-            'last_updated'   => null,
-            'last_client_ip' => null,
+            'hostname'     => $body['hostname'],
+            'domain'       => $body['domain'],
+            'last_updated' => null,
         ]);
         json_ok(Hostname::find($hostname->id), 201);
 

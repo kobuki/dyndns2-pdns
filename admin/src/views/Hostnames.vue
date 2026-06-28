@@ -91,8 +91,14 @@
             class="mb-4"
           />
           <VaInput
-            :model-value="editingHostname.last_client_ip || '—'"
-            label="Last Client IP"
+            :model-value="editingHostname.last_ipv4 || '—'"
+            label="Last IPv4"
+            readonly
+            class="mb-4"
+          />
+          <VaInput
+            :model-value="editingHostname.last_ipv6 || '—'"
+            label="Last IPv6"
             readonly
           />
         </template>
@@ -144,7 +150,8 @@ const columns = [
   { key: 'hostname', label: 'Hostname', sortable: true },
   { key: 'domain', label: 'Domain', sortable: true },
   { key: 'last_updated', label: 'Last Updated', sortable: true },
-  { key: 'last_client_ip', label: 'Last Client IP' },
+  { key: 'last_ipv4', label: 'Last IPv4' },
+  { key: 'last_ipv6', label: 'Last IPv6' },
   { key: 'actions', label: 'Actions', width: 100, align: 'center', alignHead: 'center' },
 ]
 

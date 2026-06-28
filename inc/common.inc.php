@@ -91,9 +91,21 @@ function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt, $client_i
     }
 }
 
-function update_last_updated($db, $hostnames, $client_ip) {
+function get_last_ips($db, $hostnames) {
     $quoted = array_map(function($h) use ($db) { return $db->quote($h); }, array_keys($hostnames));
-    $db->exec('UPDATE `hostnames` SET `last_updated` = NOW(), `last_client_ip` = ' . $db->quote($client_ip) .
+    $result = [];
+    foreach ($db->query('SELECT `hostname`, `last_ipv4`, `last_ipv6` FROM `hostnames` WHERE `hostname` IN (' . implode(',', $quoted) . ')') as $row) {
+        $result[$row['hostname']] = ['ipv4' => $row['last_ipv4'], 'ipv6' => $row['last_ipv6']];
+    }
+    return $result;
+}
+
+function update_last_updated($db, $hostnames, $ipv4, $ipv6) {
+    $quoted = array_map(function($h) use ($db) { return $db->quote($h); }, array_keys($hostnames));
+    $sets = ['`last_updated` = NOW()'];
+    if ($ipv4 !== false) $sets[] = '`last_ipv4` = ' . $db->quote($ipv4);
+    if ($ipv6 !== false) $sets[] = '`last_ipv6` = ' . $db->quote($ipv6);
+    $db->exec('UPDATE `hostnames` SET ' . implode(', ', $sets) .
         ' WHERE `hostname` IN (' . implode(',', $quoted) . ')');
 }
 
