@@ -2,7 +2,7 @@
 
 A thin PHP wrapper implementing the DynDNS 2 protocol [[1](#references), [2](#references)] on top of a DNS backend. Users are scoped to specific hostnames and domains, enabling delegated DNS management without granting full access to DNS zones. Supports A, AAAA and TXT records, ACME DNS-01 challenge automation via the acmeproxy protocol [[3](#references), [4](#references)], and short URLs for router-friendly single-URL updates.
 
-Based on the original work by [BastiG](https://github.com/BastiG).
+Based on the original work by [buzz-tee](https://github.com/buzz-tee/dyndns2-pdns).
 
 ## Backends
 
