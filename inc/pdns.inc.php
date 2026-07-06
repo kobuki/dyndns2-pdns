@@ -49,7 +49,30 @@ function build_rrset($hostname, $type, $content, $old_records=[])
     return $rrset;
 }
 
-function update_dns($hostnames, $ipv4, $ipv6, $txt) {
+function build_txt_removal($hostname, $value, $old_records)
+{
+    // Remove only the record matching $value, keeping any other TXT records at
+    // this name (e.g. the second challenge token in a wildcard + apex issuance).
+    $quoted = '"' . addslashes($value) . '"';
+    $remaining = array_values(array_filter($old_records, function($rec) use ($quoted) {
+        return $rec['content'] !== $quoted;
+    }));
+    $rrset = array(
+        'name' => $hostname,
+        'type' => 'TXT',
+        'ttl' => DEFAULT_TTL
+    );
+    if (empty($remaining)) {
+        $rrset['changetype'] = 'DELETE';
+        $rrset['records'] = array();
+    } else {
+        $rrset['changetype'] = 'REPLACE';
+        $rrset['records'] = $remaining;
+    }
+    return $rrset;
+}
+
+function update_dns($hostnames, $ipv4, $ipv6, $txt, $txt_remove = null) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -67,7 +90,11 @@ function update_dns($hostnames, $ipv4, $ipv6, $txt) {
         }
         if ($txt !== false) {
             $old_records = get_records($hostname, 'TXT', $ch, $info);
-            $rrsets[] = build_rrset($hostname, 'TXT', $txt, $old_records);
+            if ($txt_remove !== null) {
+                $rrsets[] = build_txt_removal($hostname, $txt_remove, $old_records);
+            } else {
+                $rrsets[] = build_rrset($hostname, 'TXT', $txt, $old_records);
+            }
         }
 
         $payload = json_encode(array('rrsets' => $rrsets));

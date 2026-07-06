@@ -73,7 +73,7 @@ function get_client_ip() {
     return $_SERVER['REMOTE_ADDR'];
 }
 
-function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt, $client_ip) {
+function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt, $client_ip, $txt_content = null) {
     $stmt = $db->prepare('INSERT INTO `changelog` (`username`, `hostname`, `operation`, `record_type`, `record_content`, `client_ip`) VALUES (?, ?, ?, ?, ?, ?)');
     foreach ($hostnames as $hostname => $info) {
         if ($ipv4 !== false) {
@@ -85,8 +85,12 @@ function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt, $client_i
             $stmt->execute([$username, $hostname, $op, 'AAAA', $ipv6, $client_ip]);
         }
         if ($txt !== false) {
+            // $txt is the DNS operation signal ('' means delete); $txt_content, when
+            // provided (acmeproxy), is the actual TXT value so the delete row records
+            // which value was removed instead of an empty string.
             $op = ($txt === '') ? 'delete' : 'add';
-            $stmt->execute([$username, $hostname, $op, 'TXT', $txt, $client_ip]);
+            $content = ($txt_content !== null) ? $txt_content : $txt;
+            $stmt->execute([$username, $hostname, $op, 'TXT', $content, $client_ip]);
         }
     }
 }
