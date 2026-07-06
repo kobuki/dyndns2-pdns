@@ -39,6 +39,7 @@ Only the essentials are shown. DynDNS2 clients typically call `/nic/update` — 
 
     <FilesMatch ".+\.php$">
         SetHandler "proxy:unix:/run/php/php-fpm.sock|fcgi://localhost"
+        CGIPassAuth On
     </FilesMatch>
 
     RewriteEngine On
