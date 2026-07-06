@@ -85,9 +85,6 @@ function log_changelog($db, $username, $hostnames, $ipv4, $ipv6, $txt, $client_i
             $stmt->execute([$username, $hostname, $op, 'AAAA', $ipv6, $client_ip]);
         }
         if ($txt !== false) {
-            // $txt is the DNS operation signal ('' means delete); $txt_content, when
-            // provided (acmeproxy), is the actual TXT value so the delete row records
-            // which value was removed instead of an empty string.
             $op = ($txt === '') ? 'delete' : 'add';
             $content = ($txt_content !== null) ? $txt_content : $txt;
             $stmt->execute([$username, $hostname, $op, 'TXT', $content, $client_ip]);

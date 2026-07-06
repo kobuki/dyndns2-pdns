@@ -51,8 +51,6 @@ function build_rrset($hostname, $type, $content, $old_records=[])
 
 function build_txt_removal($hostname, $value, $old_records)
 {
-    // Remove only the record matching $value, keeping any other TXT records at
-    // this name (e.g. the second challenge token in a wildcard + apex issuance).
     $quoted = '"' . addslashes($value) . '"';
     $remaining = array_values(array_filter($old_records, function($rec) use ($quoted) {
         return $rec['content'] !== $quoted;

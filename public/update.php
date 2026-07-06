@@ -145,11 +145,7 @@ if (!isset($ipv4) && !isset($ipv6) && !isset($txt)) {
 $ipv4 = isset($ipv4) ? $ipv4 : false;
 $ipv6 = isset($ipv6) ? $ipv6 : false;
 $txt = isset($txt) ? $txt : false;
-// For acmeproxy, $acmeproxy_txt holds the real value on both present and cleanup,
-// so the changelog delete row records the value instead of the '' delete signal.
 $txt_content = isset($acmeproxy_txt) ? $acmeproxy_txt : $txt;
-// On acmeproxy cleanup, remove only the matching TXT value rather than the whole
-// rrset; null keeps the plain dyndns2 txt='' delete-all behaviour untouched.
 $txt_remove = (isset($acmeproxy_action) && $acmeproxy_action === 'cleanup') ? $acmeproxy_txt : null;
 
 if ($txt === false && ($ipv4 !== false || $ipv6 !== false)) {
