@@ -42,6 +42,9 @@ try {
 
 if (isset($user_id)) {
     $user = verify_credentials($db, null, $pass, $user_id);
+    if ($user === false) {
+        $user_id = false;
+    }
 } else {
     $user_id = verify_credentials($db, $user, $pass, null);
 }
