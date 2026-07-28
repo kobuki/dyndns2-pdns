@@ -78,9 +78,13 @@ switch ($method) {
         if (!$id) json_err(400, 'id is required');
         $hostname = Hostname::find($id);
         if (!$hostname) json_err(404, 'Hostname not found');
+        $cascade = !empty($_GET['cascade']);
         $count = Permission::where('hostname_id', $id)->count();
         if ($count > 0) {
-            json_err(409, "Cannot delete hostname: has {$count} permission(s)");
+            if (!$cascade) {
+                json_err(409, "Cannot delete hostname: has {$count} permission(s)");
+            }
+            Permission::where('hostname_id', $id)->delete();
         }
         $hostname->delete();
         json_ok(['deleted' => true]);

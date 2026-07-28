@@ -116,10 +116,15 @@
     >
       <p v-if="deleteTarget">
         Delete hostname <strong>{{ deleteTarget.hostname }}</strong>?
-        <span v-if="deleteBlockedCount > 0" class="text-danger">
-          Cannot delete: this hostname has {{ deleteBlockedCount }} permission(s).
-          Remove permissions first.
-        </span>
+      </p>
+      <VaCheckbox
+        v-if="deleteBlockedCount > 0"
+        v-model="removePermissions"
+        :label="`Also remove ${deleteBlockedCount} assigned permission(s)`"
+        class="mt-2"
+      />
+      <p v-if="deleteBlockedCount > 0 && !removePermissions" class="text-danger mt-2">
+        Cannot delete: this hostname has assigned permissions.
       </p>
     </VaModal>
   </div>
@@ -140,6 +145,7 @@ const showDeleteModal = ref(false)
 const editingHostname = ref(null)
 const deleteTarget = ref(null)
 const deleteBlockedCount = ref(0)
+const removePermissions = ref(false)
 const guessedDomain = ref('')
 const errors = ref({})
 
@@ -259,6 +265,7 @@ async function saveHostname() {
 async function confirmDelete(hostname) {
   deleteTarget.value = hostname
   deleteBlockedCount.value = 0
+  removePermissions.value = false
   // Check permissions count via delete endpoint — we'll rely on the error response
   // Instead, check by fetching all users' permissions (lightweight approach)
   try {
@@ -276,12 +283,15 @@ async function confirmDelete(hostname) {
 }
 
 async function doDelete() {
-  if (deleteBlockedCount.value > 0) {
+  const cascade = deleteBlockedCount.value > 0 && removePermissions.value
+  // Blocked and not opted in to cascade — abort.
+  if (deleteBlockedCount.value > 0 && !cascade) {
     showDeleteModal.value = false
     return
   }
   try {
-    await axios.delete(`/api/hostnames.php?id=${deleteTarget.value.id}`)
+    const url = `/api/hostnames.php?id=${deleteTarget.value.id}` + (cascade ? '&cascade=1' : '')
+    await axios.delete(url)
     await loadHostnames()
   } catch (e) {
     console.error(e)
