@@ -53,7 +53,7 @@
     <VaModal
       v-model="showModal"
       :title="editingHostname ? 'Edit Hostname' : 'Add Hostname'"
-      @ok="saveHostname"
+      :before-ok="saveHostname"
       @cancel="closeModal"
       ok-text="Save"
     >

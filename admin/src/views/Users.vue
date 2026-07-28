@@ -65,7 +65,7 @@
     <VaModal
       v-model="showModal"
       :title="editingUser ? 'Edit User' : 'Add User'"
-      @ok="saveUser"
+      :before-ok="saveUser"
       @cancel="closeModal"
       ok-text="Save"
     >
