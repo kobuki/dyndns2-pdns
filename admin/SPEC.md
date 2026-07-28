@@ -76,7 +76,7 @@ Sortable, filterable, searchable table.
 | Actions | Edit, delete |
 
 **Add / Edit modal**
-- Username field
+- Username field — may not contain spaces (leading/trailing trimmed silently, internal rejected; enforced client- and server-side)
 - Password field with a "Generate" button — creates a random 20-char password from all printable ASCII except `'  " $ ` \ & # + = %` — safe for use in shell scripts without escaping inside single or double quotes, and safe to paste raw into a URL query string without percent-encoding, displays it in plaintext for copy-paste, eye toggle to show/hide
 - Active toggle
 - On save, plaintext password is sent to the backend and hashed with `password_hash($pass, PASSWORD_BCRYPT, ['cost' => 10])`
@@ -100,11 +100,11 @@ Sortable, filterable, searchable table.
 | Actions | Edit, delete |
 
 **Add / Edit modal**
-- Hostname field — must end with `.` (enforced client-side)
+- Hostname field — must end with `.`; hostname and domain may not contain spaces (leading/trailing trimmed silently, internal rejected). Enforced client- and server-side.
 - Domain field with auto-guess: when the hostname field loses focus, the frontend calls the guess endpoint, which SOA-walks the hostname from the backend using `dns_get_record()`, stepping up labels until a SOA record is found. This correctly handles 2-level and 3-level TLDs without heuristics. The result pre-populates the domain field with a "guessed" badge; user can override. Silent fallback if DNS times out.
 - `last_updated` and `last_client_ip` shown read-only on edit
 
-**Delete**: confirmation dialog; blocked if hostname has permissions (count shown).
+**Delete**: confirmation dialog. If the hostname has permissions, the dialog shows a checkbox to also remove them; unchecked, the delete stays blocked; checked, the permissions and hostname are removed together (cascade).
 
 ---
 
@@ -115,8 +115,6 @@ Sortable, filterable, searchable table.
 - Right panel: all hostnames as a checklist, checked = permission granted
 
 Checking or unchecking a hostname immediately POSTs or DELETEs the permission (optimistic UI with error rollback on failure).
-
-**Matrix view** (toggle): users as rows, hostnames as columns, checkboxes at intersections. Useful when both counts are small.
 
 Wildcard hostnames (starting with `.`) shown with a visual indicator.
 
@@ -174,7 +172,9 @@ DELETE /admin/api/users.php?id=N             delete user
 GET    /admin/api/hostnames.php              list hostnames
 POST   /admin/api/hostnames.php              create hostname
 PUT    /admin/api/hostnames.php?id=N         update hostname
-DELETE /admin/api/hostnames.php?id=N         delete hostname
+DELETE /admin/api/hostnames.php?id=N         delete hostname (add &cascade=1 to also
+                                             remove the hostname's permissions)
+GET    /admin/api/hostnames.php?id=N&permcount=1  count of permissions for a hostname
 GET    /admin/api/hostnames.php?guess=fqdn   SOA-walk to guess zone for a hostname
 
 GET    /admin/api/permissions.php?user_id=N  list hostname IDs permitted for user
