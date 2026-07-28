@@ -74,6 +74,11 @@ function clean_no_space($value, $label) {
     return $value;
 }
 
+// Canonical DNS names are stored with a single trailing dot.
+function with_trailing_dot($value) {
+    return $value === '' ? '' : rtrim($value, '.') . '.';
+}
+
 // --- Eloquent Models ---
 
 class User extends \Illuminate\Database\Eloquent\Model {

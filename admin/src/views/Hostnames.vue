@@ -60,7 +60,7 @@
       <div class="modal-form">
         <VaInput
           v-model="form.hostname"
-          label="Hostname (must end with .)"
+          label="Hostname"
           class="mb-4"
           @blur="onHostnameBlur"
           :error="!!errors.hostname"
@@ -234,10 +234,6 @@ async function saveHostname() {
     errors.value.hostname = 'Hostname must not contain spaces'
     return false
   }
-  if (!form.value.hostname.endsWith('.')) {
-    errors.value.hostname = 'Hostname must end with a dot'
-    return false
-  }
   if (!form.value.domain) {
     errors.value.domain = 'Domain is required'
     return false
@@ -246,6 +242,9 @@ async function saveHostname() {
     errors.value.domain = 'Domain must not contain spaces'
     return false
   }
+  // Canonical trailing dot is added automatically; the backend does the same.
+  form.value.hostname = form.value.hostname.replace(/\.*$/, '.')
+  form.value.domain = form.value.domain.replace(/\.*$/, '.')
 
   try {
     if (editingHostname.value) {

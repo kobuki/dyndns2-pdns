@@ -47,6 +47,8 @@ switch ($method) {
         if (empty($body['hostname']) || empty($body['domain'])) {
             json_err(400, 'hostname and domain are required');
         }
+        $body['hostname'] = with_trailing_dot($body['hostname']);
+        $body['domain']   = with_trailing_dot($body['domain']);
         if (Hostname::where('hostname', $body['hostname'])->exists()) {
             json_err(409, 'Hostname already exists');
         }
@@ -67,6 +69,8 @@ switch ($method) {
         if (empty($body['hostname']) || empty($body['domain'])) {
             json_err(400, 'hostname and domain are required');
         }
+        $body['hostname'] = with_trailing_dot($body['hostname']);
+        $body['domain']   = with_trailing_dot($body['domain']);
         // Check uniqueness (excluding self)
         if (Hostname::where('hostname', $body['hostname'])->where('id', '!=', $id)->exists()) {
             json_err(409, 'Hostname already exists');

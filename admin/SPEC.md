@@ -100,7 +100,7 @@ Sortable, filterable, searchable table.
 | Actions | Edit, delete |
 
 **Add / Edit modal**
-- Hostname field — must end with `.`; hostname and domain may not contain spaces (leading/trailing trimmed silently, internal rejected). Enforced client- and server-side.
+- Hostname and domain fields — a canonical trailing dot is appended automatically if missing (both client- and server-side), so the user need not type it. Neither may contain spaces (leading/trailing trimmed silently, internal rejected; enforced client- and server-side).
 - Domain field with auto-guess: when the hostname field loses focus, the frontend calls the guess endpoint, which SOA-walks the hostname from the backend using `dns_get_record()`, stepping up labels until a SOA record is found. This correctly handles 2-level and 3-level TLDs without heuristics. The result pre-populates the domain field with a "guessed" badge; user can override. Silent fallback if DNS times out.
 - `last_updated` and `last_client_ip` shown read-only on edit
 
