@@ -218,8 +218,14 @@ async function onHostnameBlur() {
 
 async function saveHostname() {
   errors.value = {}
+  form.value.hostname = form.value.hostname.trim()
+  form.value.domain = form.value.domain.trim()
   if (!form.value.hostname) {
     errors.value.hostname = 'Hostname is required'
+    return false
+  }
+  if (/\s/.test(form.value.hostname)) {
+    errors.value.hostname = 'Hostname must not contain spaces'
     return false
   }
   if (!form.value.hostname.endsWith('.')) {
@@ -228,6 +234,10 @@ async function saveHostname() {
   }
   if (!form.value.domain) {
     errors.value.domain = 'Domain is required'
+    return false
+  }
+  if (/\s/.test(form.value.domain)) {
+    errors.value.domain = 'Domain must not contain spaces'
     return false
   }
 

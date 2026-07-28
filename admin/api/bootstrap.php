@@ -65,6 +65,15 @@ function get_body() {
     return is_array($data) ? $data : [];
 }
 
+// Silently strip leading/trailing whitespace; reject any internal whitespace.
+function clean_no_space($value, $label) {
+    $value = trim((string)$value);
+    if (preg_match('/\s/u', $value)) {
+        json_err(400, "$label must not contain spaces");
+    }
+    return $value;
+}
+
 // --- Eloquent Models ---
 
 class User extends \Illuminate\Database\Eloquent\Model {

@@ -211,8 +211,13 @@ function generatePassword() {
 
 async function saveUser() {
   errors.value = {}
+  form.value.username = form.value.username.trim()
   if (!form.value.username) {
     errors.value.username = 'Username is required'
+    return false
+  }
+  if (/\s/.test(form.value.username)) {
+    errors.value.username = 'Username must not contain spaces'
     return false
   }
   if (!editingUser.value && !form.value.password) {

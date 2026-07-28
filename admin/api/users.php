@@ -12,6 +12,7 @@ switch ($method) {
 
     case 'POST':
         $body = get_body();
+        $body['username'] = clean_no_space($body['username'] ?? '', 'Username');
         if (empty($body['username']) || empty($body['password'])) {
             json_err(400, 'username and password are required');
         }
@@ -30,6 +31,7 @@ switch ($method) {
         $user = User::find($id);
         if (!$user) json_err(404, 'User not found');
         $body = get_body();
+        $body['username'] = clean_no_space($body['username'] ?? '', 'Username');
         if (empty($body['username'])) {
             json_err(400, 'username is required');
         }

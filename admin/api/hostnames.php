@@ -39,6 +39,8 @@ switch ($method) {
 
     case 'POST':
         $body = get_body();
+        $body['hostname'] = clean_no_space($body['hostname'] ?? '', 'Hostname');
+        $body['domain']   = clean_no_space($body['domain'] ?? '', 'Domain');
         if (empty($body['hostname']) || empty($body['domain'])) {
             json_err(400, 'hostname and domain are required');
         }
@@ -57,6 +59,8 @@ switch ($method) {
         $hostname = Hostname::find($id);
         if (!$hostname) json_err(404, 'Hostname not found');
         $body = get_body();
+        $body['hostname'] = clean_no_space($body['hostname'] ?? '', 'Hostname');
+        $body['domain']   = clean_no_space($body['domain'] ?? '', 'Domain');
         if (empty($body['hostname']) || empty($body['domain'])) {
             json_err(400, 'hostname and domain are required');
         }
