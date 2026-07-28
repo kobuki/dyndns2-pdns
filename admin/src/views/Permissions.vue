@@ -1,18 +1,9 @@
 <template>
   <div>
-    <div class="header-row mb-4">
-      <h2 class="va-h2">Permissions</h2>
-      <VaButton
-        :icon="matrixView ? 'view_list' : 'grid_on'"
-        preset="secondary"
-        @click="matrixView = !matrixView"
-      >
-        {{ matrixView ? 'Panel View' : 'Matrix View' }}
-      </VaButton>
-    </div>
+    <h2 class="va-h2 mb-4">Permissions</h2>
 
     <!-- Two-panel layout -->
-    <div v-if="!matrixView" class="panel-layout">
+    <div class="panel-layout">
       <!-- Left: user list -->
       <VaCard class="user-panel">
         <VaCardTitle>Users</VaCardTitle>
@@ -94,41 +85,6 @@
         </VaCardContent>
       </VaCard>
     </div>
-
-    <!-- Matrix view -->
-    <div v-else>
-      <VaCard>
-        <VaCardContent class="matrix-scroll">
-          <table class="matrix-table">
-            <thead>
-              <tr>
-                <th class="user-col">User</th>
-                <th v-for="hostname in hostnames" :key="hostname.id" class="hostname-col">
-                  <span :title="hostname.hostname">{{ hostname.hostname }}</span>
-                  <VaBadge
-                    v-if="hostname.hostname.startsWith('.')"
-                    text="wildcard"
-                    color="warning"
-                    class="ml-1"
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in users" :key="user.id">
-                <td class="user-col">{{ user.username }}</td>
-                <td v-for="hostname in hostnames" :key="hostname.id" class="check-col">
-                  <VaCheckbox
-                    :model-value="matrixPermissions.get(user.id)?.has(hostname.id) ?? false"
-                    @update:model-value="toggleMatrixPermission(user, hostname, $event)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </VaCardContent>
-      </VaCard>
-    </div>
   </div>
 </template>
 
@@ -157,8 +113,6 @@ const filteredHostnames = computed(() => {
 })
 const selectedUser = ref(null)
 const userPermissions = ref(new Set())
-const matrixPermissions = ref(new Map())
-const matrixView = ref(false)
 
 async function loadAll() {
   const [uRes, hRes] = await Promise.all([
@@ -203,54 +157,8 @@ async function togglePermission(hostname, checked) {
   }
 }
 
-async function loadMatrixPermissions() {
-  const map = new Map()
-  const results = await Promise.all(
-    users.value.map(u =>
-      axios.get(`/api/permissions.php?user_id=${u.id}`).then(r => ({ userId: u.id, perms: r.data }))
-    )
-  )
-  for (const { userId, perms } of results) {
-    map.set(userId, new Set(perms))
-  }
-  matrixPermissions.value = map
-}
-
-async function toggleMatrixPermission(user, hostname, checked) {
-  const userSet = matrixPermissions.value.get(user.id) || new Set()
-  const prev = userSet.has(hostname.id)
-
-  // Optimistic
-  if (checked) userSet.add(hostname.id)
-  else userSet.delete(hostname.id)
-  matrixPermissions.value = new Map(matrixPermissions.value)
-
-  try {
-    if (checked) {
-      await axios.post('/api/permissions.php', {
-        user_id: user.id,
-        hostname_id: hostname.id,
-      })
-    } else {
-      await axios.delete('/api/permissions.php', {
-        data: { user_id: user.id, hostname_id: hostname.id },
-      })
-    }
-  } catch (e) {
-    // Rollback
-    if (prev) userSet.add(hostname.id)
-    else userSet.delete(hostname.id)
-    matrixPermissions.value = new Map(matrixPermissions.value)
-    console.error('Permission toggle failed', e)
-  }
-}
-
 watch(hostnameSearch, val => sessionStorage.setItem('perm.search', val))
 watch(showPermittedOnly, val => sessionStorage.setItem('perm.permittedOnly', val))
-
-watch(matrixView, async (val) => {
-  if (val) await loadMatrixPermissions()
-})
 
 onMounted(async () => {
   await loadAll()
@@ -279,11 +187,6 @@ async function selectUser(user) {
 </script>
 
 <style scoped>
-.header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 .panel-layout {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -361,33 +264,5 @@ async function selectUser(user) {
 }
 .status-badge {
   flex-shrink: 0;
-}
-.matrix-scroll {
-  overflow-x: auto;
-}
-.matrix-table {
-  border-collapse: collapse;
-  min-width: 100%;
-}
-.matrix-table th,
-.matrix-table td {
-  border: 1px solid var(--va-background-border, #ddd);
-  padding: 0.4rem 0.6rem;
-  text-align: center;
-  white-space: nowrap;
-}
-.matrix-table .user-col {
-  text-align: left;
-  font-weight: 600;
-  min-width: 120px;
-}
-.matrix-table .hostname-col {
-  font-size: 0.8rem;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.check-col {
-  min-width: 48px;
 }
 </style>
