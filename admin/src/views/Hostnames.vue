@@ -266,20 +266,12 @@ async function confirmDelete(hostname) {
   deleteTarget.value = hostname
   deleteBlockedCount.value = 0
   removePermissions.value = false
-  // Check permissions count via delete endpoint — we'll rely on the error response
-  // Instead, check by fetching all users' permissions (lightweight approach)
-  try {
-    const usersRes = await axios.get('/api/users.php')
-    let count = 0
-    const checks = await Promise.all(
-      usersRes.data.map(u => axios.get(`/api/permissions.php?user_id=${u.id}`))
-    )
-    for (const r of checks) {
-      if (r.data?.includes(hostname.id)) count++
-    }
-    deleteBlockedCount.value = count
-  } catch (e) {}
   showDeleteModal.value = true
+  // Fill in the assigned-permission count in the background.
+  try {
+    const res = await axios.get(`/api/hostnames.php?id=${hostname.id}&permcount=1`)
+    deleteBlockedCount.value = res.data?.count || 0
+  } catch (e) {}
 }
 
 async function doDelete() {

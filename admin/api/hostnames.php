@@ -34,6 +34,9 @@ if ($method === 'GET' && isset($_GET['guess'])) {
 
 switch ($method) {
     case 'GET':
+        if ($id && isset($_GET['permcount'])) {
+            json_ok(['count' => Permission::where('hostname_id', $id)->count()]);
+        }
         $hostnames = Hostname::orderBy('id')->get();
         json_ok($hostnames);
 
